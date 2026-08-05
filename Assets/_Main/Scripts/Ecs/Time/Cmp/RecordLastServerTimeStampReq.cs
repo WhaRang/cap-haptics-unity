@@ -1,0 +1,7 @@
+namespace _Main.Scripts.Ecs.Time.Cmp
+{
+	public struct RecordLastServerTimeStampReq
+	{
+		
+	}
+}
