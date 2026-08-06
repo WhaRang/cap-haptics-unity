@@ -1,0 +1,21 @@
+{
+  "name": "com.cap.haptics",
+  "version": "0.5.0",
+  "displayName": "cap-haptics",
+  "description": "Semantic haptics for Android. Ask for a meaning — Success, ImpactHeavy, Selection — and the native SDK renders it through the best tier the device actually supports, degrading gracefully on weaker hardware.",
+  "unity": "6000.3",
+  "license": "MIT",
+  "keywords": [
+    "haptics",
+    "vibration",
+    "android",
+    "feedback"
+  ],
+  "samples": [
+    {
+      "displayName": "Haptics Demo",
+      "description": "One-file bootstrap: initializes the SDK and attaches the three-tab debug panel (capabilities, pattern grid with tier override, waveform playground).",
+      "path": "Samples~/HapticsDemo"
+    }
+  ]
+}
