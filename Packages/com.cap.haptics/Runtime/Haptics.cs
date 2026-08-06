@@ -78,10 +78,6 @@ namespace Cap.Haptics
 					return false;
 				}
 
-				// The §8 drift-catcher: every C# enum mirror must agree with the manifest
-				// the installed AAR reports, name for name and id for id. Runs after
-				// native init so it checks the AAR actually on the device — which is
-				// where a mismatch would otherwise bite as the wrong pattern playing.
 				var manifestProblems = EnumManifestValidator.Validate(_backend.GetEnumManifestJson());
 				if (manifestProblems != null)
 				{
@@ -92,8 +88,6 @@ namespace Cap.Haptics
 					return false;
 				}
 
-				// Read once, keep forever: the snapshot cannot change without a re-init,
-				// and the JSON round-trip is too heavy for anything but session setup.
 				Capabilities = HapticCapabilities.FromJson(_backend.GetCapabilitiesJson());
 				if (Capabilities == null)
 					Debug.LogWarning("[cap-haptics] Capabilities unavailable — diagnostics will be empty.");
@@ -107,8 +101,6 @@ namespace Cap.Haptics
 			}
 			catch (Exception e)
 			{
-				// Nothing in the public surface throws — a haptic SDK is never worth
-				// crashing over, and this is the outermost net for what nobody predicted.
 				Debug.LogError($"[cap-haptics] Initialize failed: {e.Message}");
 				DisposeBackend();
 				return false;
@@ -127,6 +119,7 @@ namespace Cap.Haptics
 		{
 			if (_backend == null || !IsInitialized)
 				return HapticResult.NotInitialized;
+			
 			return HapticResultExtensions.FromCode(_backend.PlayPattern((int)pattern, intensity));
 		}
 
@@ -146,8 +139,7 @@ namespace Cap.Haptics
 		}
 
 		/// <summary>
-		/// Plays a caller-authored envelope — the escape hatch under the semantic API, and
-		/// what the U4 playground drives. Validation happens natively;
+		/// Plays a caller-authored envelope — the escape hatch under the semantic API. Validation happens natively;
 		/// <see cref="HapticResult.InvalidArgument"/> comes back for anything the platform
 		/// would have thrown on.
 		/// </summary>

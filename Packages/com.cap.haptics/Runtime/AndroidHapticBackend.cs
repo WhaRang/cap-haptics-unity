@@ -37,7 +37,6 @@ namespace Cap.Haptics
 			}
 			catch (Exception e)
 			{
-				// Most likely a stale or missing AAR: the method itself is unreachable.
 				Debug.LogError($"[cap-haptics] getBridgeVersion failed — are both AARs in Plugins/Android? {e.Message}");
 				return -1;
 			}
@@ -47,19 +46,10 @@ namespace Cap.Haptics
 		{
 			try
 			{
-				// The bridge wants the Activity because the system view-feedback channel
-				// needs a View to hang haptics off. Unity's main thread is not the Android
-				// UI thread; the Kotlin side marshals where the platform requires it.
-				//
-				// No `using`: currentActivity is owned by the Unity runtime, and disposing
-				// it throws "The object is owned by Unity runtime" (found in U1 on-device).
 				var activity = AndroidApplication.currentActivity;
 				if (_bridge.Call<bool>("initialize", activity, verboseLogging))
 					return true;
 
-				// False has two different meanings; getLastError/isInitialized tell them
-				// apart. A bridge-level throw records detail; an initialized-but-false
-				// answer means the probe reported no usable vibrator.
 				var detail = _bridge.Call<string>("getLastError");
 				var nativeInitialized = _bridge.Call<bool>("isInitialized");
 				Debug.LogError(

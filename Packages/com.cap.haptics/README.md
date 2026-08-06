@@ -61,5 +61,4 @@ C#, drifted enum — `Initialize()` fails loudly at startup with a message sayin
 disagrees, instead of playing the wrong thing later. If you rebuild the native side, ship
 both AARs together (`gradlew installUnityPlugin` does).
 
-The native SDK lives in the `cap-haptics-android` repository; the full design document is
-`PLAN.md` at the workspace root.
+The native SDK lives in the `cap-haptics-android` repository;

@@ -23,7 +23,6 @@ namespace Cap.Haptics
 	{
 		private static readonly string[] Tabs = { "Caps", "Patterns", "Playground" };
 
-		// Compact on purpose: four of these share one row on a ~350dp-wide phone panel.
 		private static readonly string[] TierChoices = { "Auto", "T1", "T2", "T3" };
 
 		private static readonly HapticPattern[] Patterns =
@@ -36,15 +35,12 @@ namespace Cap.Haptics
 		private float _intensity = 1f;
 		private string _lastAction = "—";
 
-		// Playground state: a pulse train is four sliders' worth of expressive and maps
-		// directly onto the alternating off/on shape createWaveform wants.
 		private float _pulseCount = 3f;
 		private float _pulseMs = 60f;
 		private float _gapMs = 90f;
 		private float _amplitude = 200f;
 		private bool _repeat;
 
-		/// <summary>Creates a persistent GameObject hosting the overlay. Idempotent.</summary>
 		public static HapticsDiagnosticsOverlay Attach()
 		{
 			var existing = FindAnyObjectByType<HapticsDiagnosticsOverlay>();
@@ -63,12 +59,9 @@ namespace Cap.Haptics
 
 		private void OnGUI()
 		{
-			// dp-style scaling (Android's dpi/160), not dpi/96: the latter left a ~200dp
-			// panel on a flagship screen and everything overflowed sideways.
 			var scale = Mathf.Max(1f, Screen.dpi / 160f);
 			GUI.matrix = Matrix4x4.Scale(new Vector3(scale, scale, 1f));
 
-			// Screen.safeArea has its origin at the bottom-left; GUI space at the top-left.
 			var safe = Screen.safeArea;
 			var area = new Rect(
 				safe.x / scale + 8,
@@ -79,9 +72,6 @@ namespace Cap.Haptics
 			GUILayout.BeginArea(area);
 			_tab = GUILayout.Toolbar(_tab, Tabs, GUILayout.Height(28));
 
-			// Vertical scrolling only, and only when the content actually overflows —
-			// anything wide enough to scroll sideways is a layout bug to fix, not a
-			// direction to enable.
 			_scroll = GUILayout.BeginScrollView(_scroll, false, false,
 				GUIStyle.none, GUI.skin.verticalScrollbar);
 
@@ -107,8 +97,6 @@ namespace Cap.Haptics
 			GUILayout.Label($"active tier: {Haptics.ActiveTier}   " +
 				$"device tier: {Haptics.Capabilities?.DeviceTier.ToString() ?? "?"}");
 
-			// The override that makes the degradation matrix feelable: force T1 on a T3
-			// phone and press the same button again.
 			var tierChoice = GUILayout.SelectionGrid(_tierChoice, TierChoices, 4, GUILayout.Height(30));
 			if (tierChoice != _tierChoice)
 			{
@@ -122,7 +110,6 @@ namespace Cap.Haptics
 			DrawSlider("intensity", ref _intensity, 0f, 1f, "0.00");
 			GUILayout.Space(4);
 
-			// One button per enum value — the grid IS the enum, nothing to keep in sync.
 			for (var i = 0; i < Patterns.Length; i += 2)
 			{
 				GUILayout.BeginHorizontal();
@@ -171,7 +158,6 @@ namespace Cap.Haptics
 			GUILayout.Label($"last: {_lastAction}");
 		}
 
-		/// <summary>Alternating off/on segments starting with off, as createWaveform expects.</summary>
 		private (long[] timings, int[] amplitudes) BuildPulseTrain()
 		{
 			var pulses = Mathf.RoundToInt(_pulseCount);

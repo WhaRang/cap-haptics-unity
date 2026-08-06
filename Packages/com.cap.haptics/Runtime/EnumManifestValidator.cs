@@ -35,6 +35,7 @@ namespace Cap.Haptics
 			}
 
 			var problems = new StringBuilder();
+			
 			Check<HapticPattern>(manifest.patterns, "patterns", problems);
 			Check<HapticPrimitive>(manifest.primitives, "primitives", problems);
 			Check<PredefinedEffect>(manifest.effects, "effects", problems);
@@ -73,9 +74,7 @@ namespace Cap.Haptics
 			}
 		}
 
-		/// <summary>IMPACT_LIGHT and ImpactLight are the same name in different accents.</summary>
-		private static string Normalize(string name) =>
-			name.Replace("_", "").ToUpperInvariant();
+		private static string Normalize(string name) => name.Replace("_", "").ToUpperInvariant();
 
 #pragma warning disable 0649 // assigned by JsonUtility via reflection
 		[Serializable]

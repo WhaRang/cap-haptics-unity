@@ -56,8 +56,7 @@ namespace Cap.Haptics
 		/// means unreadable, which is not the same answer as switched off — and either way
 		/// OEM intensity sliders can still silence output this cannot see.
 		/// </summary>
-		public SupportLevel SystemHapticsEnabled =>
-			SupportLevelExtensions.ParseSupportLevel(systemHapticsEnabled);
+		public SupportLevel SystemHapticsEnabled => SupportLevelExtensions.ParseSupportLevel(systemHapticsEnabled);
 
 		/// <summary>Per-effect support for the T2 predefined effects.</summary>
 		public EffectEntry[] Effects => effects;

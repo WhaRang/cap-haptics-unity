@@ -36,8 +36,7 @@ namespace Cap.Haptics
 	{
 		public static bool IsSuccess(this HapticResult result) => result == HapticResult.Ok;
 
-		/// <summary>Wire code → enum; unknown codes map to <see cref="HapticResult.PlatformError"/>.</summary>
-		public static HapticResult FromCode(int code) =>
-			code >= 0 && code <= 6 ? (HapticResult)code : HapticResult.PlatformError;
+		public static HapticResult FromCode(int code) => 
+			code is >= 0 and <= 6 ? (HapticResult)code : HapticResult.PlatformError;
 	}
 }
