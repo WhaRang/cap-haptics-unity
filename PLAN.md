@@ -21,9 +21,10 @@ assets with adb edit-mode preview, verified on-device). **M2 deferred by decisio
 init + CI for the android/unity/**ios** repos will happen as one batch once
 `cap-haptics-ios` exists. **Open:** M2 (batched), M4 (device matrix), M5 (iOS — in progress
 on the mac; the detailed plan is **§11**. I0–I1 done, verified on the iPhone 2026-08-09:
-Swift-in-Unity + P/Invoke handshake works. I2 verified on-device. I3 implemented — Core
-Haptics playback (patterns/compositions/waveforms, engine lifecycle), 22 `swift test`
-cases green — pending on-device feel pass), M6 (Asset Store).
+Swift-in-Unity + P/Invoke handshake works. I2 verified on-device. I3 verified on-device —
+all 10 patterns render correctly on tier 3. I4 implemented — generator backend, playEffect,
+real tier-2 routing (natural and forced), 30 `swift test` cases green — pending on-device
+verification via the forced-tier switch), M6 (Asset Store).
 
 **Versions:** UPM package **0.9.0** · bridge ABI **v2** · AAR modules compileSdk 36 (the
 Unity-AGP ceiling, §2) · kotlin-stdlib **2.2.10** injected by `Editor/KotlinStdlibInjector.cs`

@@ -15,10 +15,9 @@ namespace Cap.Haptics.Backend
 	/// shaped like the Kotlin bridge: C types only, no exception ever escapes, result
 	/// codes instead of throws (PLAN.md §11.3).
 	///
-	/// I3 surface: everything is native except <c>PlayEffect</c> (the generator tier,
-	/// I4) and the enum manifest — the latter permanently C#-generated via the
-	/// <see cref="EditorHapticBackend"/>: there is no second enum declaration on iOS
-	/// to drift from (PLAN.md §11.1).
+	/// The full contract is native except the enum manifest, permanently C#-generated
+	/// via the <see cref="EditorHapticBackend"/>: there is no second enum declaration
+	/// on iOS to drift from (PLAN.md §11.1).
 	/// </summary>
 	internal sealed class IosHapticBackend : IHapticBackend
 	{
@@ -48,6 +47,9 @@ namespace Cap.Haptics.Backend
 
 		[DllImport("__Internal")]
 		private static extern int capHapticsPlayWaveform(long[] timingsMs, int[] amplitudes, int timingsCount, int amplitudesCount, int repeatIndex);
+
+		[DllImport("__Internal")]
+		private static extern int capHapticsPlayEffect(int effectId);
 
 		[DllImport("__Internal")]
 		private static extern void capHapticsCancel();
@@ -143,8 +145,18 @@ namespace Cap.Haptics.Backend
 			}
 		}
 
-		// Generator tier (I4) — until then the honest answer is "not supported here yet".
-		public int PlayEffect(int effectId) => (int)HapticResult.UnsupportedPattern;
+		public int PlayEffect(int effectId)
+		{
+			try
+			{
+				return capHapticsPlayEffect(effectId);
+			}
+			catch (Exception e)
+			{
+				Debug.LogError($"[cap-haptics] capHapticsPlayEffect failed: {e.Message}");
+				return (int)HapticResult.PlatformError;
+			}
+		}
 
 		public int PlayComposition(int[] primitiveIds, float[] scales, int[] delaysMs)
 		{

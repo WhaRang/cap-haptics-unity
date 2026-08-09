@@ -5,9 +5,9 @@ import Foundation
 // Rules of this boundary (PLAN.md §11.3): C types only, no throw/fatalError may
 // escape, returned strings are strdup'd and freed by C# via capHapticsFreeString.
 //
-// I3 surface: handshake, init + probe, capabilities, forced tier, and Core Haptics
-// playback (playPattern / playComposition / playWaveform / cancel). Generator playback
-// (playEffect, and forced-tier-2 routing) arrives in I4.
+// I4 surface: the full contract — handshake, init + probe, capabilities, forced tier,
+// Core Haptics playback (tier 3), generator playback (tier 2, natural or forced),
+// playEffect, cancel.
 
 /// SDK state. Unity calls the bridge from its single main thread and every mutation
 /// below additionally hops to the app main queue, so plain vars suffice — the
@@ -24,14 +24,17 @@ private final class CapHapticsCore {
 		TierSelector.activeTier(deviceTier: deviceTier, forcedTier: forcedTier)
 	}
 
-	/// Created at init when the device tier allows it; nil otherwise.
+	/// Created at init when the device tier allows them; nil otherwise. Tier-3 hardware
+	/// gets both — the generators serve the forced-tier override and playEffect.
 	var coreHaptics: CoreHapticsBackend?
+	var generators: GeneratorBackend?
 }
 
 /// Tier routing for one playback call — the per-call twin of the Kotlin backend
 /// selection. Runs on the main queue (callers marshal).
 private func routedPlay(
-	_ what: String, _ viaCoreHaptics: (CoreHapticsBackend) -> Int32
+	viaCoreHaptics: (CoreHapticsBackend) -> Int32,
+	viaGenerators: (GeneratorBackend) -> Int32
 ) -> Int32 {
 	let core = CapHapticsCore.shared
 	guard core.initialized else {
@@ -44,10 +47,13 @@ private func routedPlay(
 		}
 		return viaCoreHaptics(backend)
 	case 2:
-		// I4 brings the generator backend; until then a forced (or natural) tier 2 is
-		// honest about not playing rather than silently pretending.
-		HLog.d("\(what): tier 2 (generators) not implemented until I4")
-		return HapticResult.unsupportedPattern
+		guard let backend = core.generators else {
+			return HapticResult.platformError
+		}
+		// A running CH engine owns the actuator and silently starves the generators —
+		// hand it over before every generator play (no-op when already stopped).
+		core.coreHaptics?.suspend()
+		return viaGenerators(backend)
 	default:
 		return HapticResult.noVibrator
 	}
@@ -96,6 +102,9 @@ public func capHapticsInitialize(_ verbose: Bool) -> Bool {
 		if core.deviceTier >= 3 {
 			core.coreHaptics = CoreHapticsBackend()
 		}
+		if core.deviceTier >= 2 {
+			core.generators = GeneratorBackend()
+		}
 		core.initialized = true
 		HLog.d("initialized: iOS \(caps.sdkMajor), coreHaptics=\(caps.supportsCoreHaptics), " +
 			"phone=\(caps.isPhone) → tier \(core.deviceTier)")
@@ -141,7 +150,26 @@ public func capHapticsSetForcedTier(_ tierLevel: Int32) -> Int32 {
 @_cdecl("capHapticsPlayPattern")
 public func capHapticsPlayPattern(_ patternId: Int32, _ intensity: Float) -> Int32 {
 	return onMainSync {
-		routedPlay("playPattern") { $0.playPattern(patternId, intensity: intensity) }
+		routedPlay(
+			viaCoreHaptics: { $0.playPattern(patternId, intensity: intensity) },
+			viaGenerators: { $0.playPattern(patternId, intensity: intensity) })
+	}
+}
+
+/// One OEM-tuned effect, exactly as tuned. Generator-rendered on every haptic tier —
+/// this is the "predefined" channel, and generators *are* iOS's predefined effects.
+@_cdecl("capHapticsPlayEffect")
+public func capHapticsPlayEffect(_ effectId: Int32) -> Int32 {
+	return onMainSync {
+		let core = CapHapticsCore.shared
+		guard core.initialized else {
+			return HapticResult.notInitialized
+		}
+		guard core.activeTier >= 2, let generators = core.generators else {
+			return HapticResult.noVibrator
+		}
+		core.coreHaptics?.suspend()
+		return generators.playEffect(effectId)
 	}
 }
 
@@ -158,9 +186,9 @@ public func capHapticsPlayComposition(
 		return HapticResult.invalidArgument
 	}
 	return onMainSync {
-		routedPlay("playComposition") {
-			$0.playComposition(primitiveIds: ids, scales: scaleValues, delaysMs: delays)
-		}
+		routedPlay(
+			viaCoreHaptics: { $0.playComposition(primitiveIds: ids, scales: scaleValues, delaysMs: delays) },
+			viaGenerators: { $0.playComposition(primitiveIds: ids, scales: scaleValues, delaysMs: delays) })
 	}
 }
 
@@ -176,9 +204,9 @@ public func capHapticsPlayWaveform(
 		return HapticResult.invalidArgument
 	}
 	return onMainSync {
-		routedPlay("playWaveform") {
-			$0.playWaveform(timingsMs: timings, amplitudes: amps, repeatIndex: repeatIndex)
-		}
+		routedPlay(
+			viaCoreHaptics: { $0.playWaveform(timingsMs: timings, amplitudes: amps, repeatIndex: repeatIndex) },
+			viaGenerators: { $0.playWaveform(timingsMs: timings, amplitudes: amps, repeatIndex: repeatIndex) })
 	}
 }
 
@@ -186,6 +214,7 @@ public func capHapticsPlayWaveform(
 public func capHapticsCancel() {
 	onMainSync {
 		CapHapticsCore.shared.coreHaptics?.cancel()
+		CapHapticsCore.shared.generators?.cancel()
 	}
 }
 #endif
