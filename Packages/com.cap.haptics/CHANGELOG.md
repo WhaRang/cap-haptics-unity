@@ -3,6 +3,53 @@
 All notable changes to this package are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com); versions follow [semver](https://semver.org).
 
+## [0.9.0] - 2026-08-09
+
+### Changed
+- **One asset = one rendering.** `HapticPatternAsset` now has a top-level `Mode` —
+  Waveform / Composition / PredefinedEffect — replacing the "waveform + optional tier
+  hints" shape. The mode is authoritative in code too: `Haptics.Play(asset)` always plays
+  that rendering, and degradation on lower tiers happens natively through the same
+  approximation machinery the built-in patterns use. The Inspector shows only the active
+  mode's fields, and preview plays exactly what the asset is.
+- **Segments unified with curves.** Each waveform segment is now either a static Buzz
+  (duration + amplitude) or a Curve (duration + drawable envelope + probe count), plus a
+  leading `delayMs` — so a click, a gap and a swell mix in one list. A custom drawer shows
+  only the fields the segment type uses. Curve probes coarsen proportionally if the total
+  would exceed the native 500-step cap.
+- **adb preview logs are off by default** — toggle "Log adb commands" in the Inspector
+  (persisted via EditorPrefs). Errors always log.
+- Breaking for 0.8.0 assets: the top-level curve/segment fields were replaced; re-author
+  existing test assets (one Curve segment reproduces an 0.8.0 curve asset).
+
+## [0.8.0] - 2026-08-09
+
+### Added
+- **Curve authoring**: draw the strength envelope on an `AnimationCurve` (the new default
+  waveform source) over a configurable duration; it samples into waveform steps with
+  consecutive-equal merging, staying under the native 500-step cap. Segment-list mode
+  remains for precise rhythms.
+- **Tier-selectable preview**: the Inspector's preview can now play the T2 hint
+  (`prebaked`) and T3 hint (`primitives`) over adb, not just the waveform — with an Auto
+  mode that picks the richest rendering the asset offers. Shell limitations (no primitive
+  scales, no prebaked intensity, no SDK tier logic) are stated in the Inspector.
+
+### Changed
+- Assets created with 0.7.0 deserialize into Curve mode (the new field's default) — set
+  `Waveform Source` back to `Segments` on any existing asset that used the segment list.
+
+## [0.7.0] - 2026-08-09
+
+### Added
+- **M3 — pattern assets**: `HapticPatternAsset` (Create → cap-haptics → Haptic Pattern) —
+  a designer-authored waveform (segment list) with optional per-tier hints (T3 composition
+  steps, T2 predefined effect); `Haptics.Play(asset, intensity)` consults the hints against
+  the active tier, so the forced-tier override applies to assets too.
+- Inspector "Preview on device (adb)" button: feel the waveform on a USB-attached phone from
+  Edit mode — no build, no Play mode. The adb command and device reply are logged verbatim.
+- `IHapticBackend` gained `PlayEffect` / `PlayComposition`, surfacing bridge methods that
+  existed since v1 — no ABI change, no AAR rebuild.
+
 ## [0.6.0] - 2026-08-08
 
 ### Added

@@ -45,6 +45,32 @@ sliders and sends them through `Haptics.PlayWaveform`.
 Or import the *Haptics Demo* sample from the Package Manager window, which does both calls
 for you.
 
+## Authoring your own patterns
+
+**Create → cap-haptics → Haptic Pattern** makes a `HapticPatternAsset`. One asset is one
+rendering, chosen by its **Mode**:
+
+- **Waveform** (default) — a segment list where each segment is a static *Buzz* (duration +
+  strength) or a *Curve* (draw the strength envelope, pick how finely it samples), with an
+  optional leading delay. A click, a gap and a swell mix in one list.
+- **Composition** — a sequence of hardware-tuned primitives (T3).
+- **Predefined Effect** — one OEM-tuned effect (T2).
+
+Play it like the built-ins:
+
+```csharp
+Haptics.Play(myPatternAsset, intensity: 0.8f);
+```
+
+The mode always plays; on hardware below its tier the native library degrades it through
+the same approximation machinery the built-in patterns use — an asset never silently
+no-ops. The debug panel's tier override applies, so you can feel the degraded rendering too.
+
+While tuning, the Inspector's **Play** button previews the asset on a USB-attached phone
+straight from Edit mode, no build required — waveforms, compositions and effects alike.
+(The adb channel plays primitives unscaled and effects as tuned; a running app is ground
+truth for scales and degradation.)
+
 ## What "no vibrator" and "suppressed" mean
 
 `HapticResult.Ok` means the platform accepted the effect — not that the user felt it: system

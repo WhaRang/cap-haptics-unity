@@ -56,6 +56,15 @@ namespace Cap.Haptics.Backend
 		/// <see cref="Cancel"/>.</param>
 		int PlayWaveform(long[] timingsMs, int[] amplitudes, int repeatIndex);
 
+		/// <summary>One OEM-tuned T2 effect, exactly as tuned — no intensity control exists.</summary>
+		int PlayEffect(int effectId);
+
+		/// <summary>
+		/// A T3 primitive sequence. Three parallel arrays rather than structs, because that
+		/// is what crosses JNI without per-element marshalling — same shape as the bridge.
+		/// </summary>
+		int PlayComposition(int[] primitiveIds, float[] scales, int[] delaysMs);
+
 		/// <summary>Stops anything currently playing.</summary>
 		void Cancel();
 	}

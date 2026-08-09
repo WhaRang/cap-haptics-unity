@@ -72,6 +72,21 @@ namespace Cap.Haptics.Backend
 			return (int)HapticTier.None;
 		}
 
+		public int PlayEffect(int effectId)
+		{
+			if (_verbose)
+				Debug.Log($"[cap-haptics] Editor stub: PlayEffect({(PredefinedEffect)effectId})");
+			return (int)HapticResult.Ok;
+		}
+
+		public int PlayComposition(int[] primitiveIds, float[] scales, int[] delaysMs)
+		{
+			if (_verbose)
+				Debug.Log($"[cap-haptics] Editor stub: PlayComposition([{string.Join(",", primitiveIds)}], " +
+					$"[{string.Join(",", scales)}], [{string.Join(",", delaysMs)}])");
+			return (int)HapticResult.Ok;
+		}
+
 		public int PlayWaveform(long[] timingsMs, int[] amplitudes, int repeatIndex)
 		{
 			if (_verbose)

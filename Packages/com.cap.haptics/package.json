@@ -1,6 +1,6 @@
 {
   "name": "com.cap.haptics",
-  "version": "0.6.0",
+  "version": "0.9.0",
   "displayName": "cap-haptics",
   "description": "Semantic haptics for Android. Ask for a meaning — Success, ImpactHeavy, Selection — and the native SDK renders it through the best tier the device actually supports, degrading gracefully on weaker hardware.",
   "unity": "6000.3",

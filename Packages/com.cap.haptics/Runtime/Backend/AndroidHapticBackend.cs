@@ -118,6 +118,32 @@ namespace Cap.Haptics.Backend
 			}
 		}
 
+		public int PlayEffect(int effectId)
+		{
+			try
+			{
+				return _bridge.Call<int>("playEffect", effectId);
+			}
+			catch (Exception e)
+			{
+				Debug.LogError($"[cap-haptics] playEffect failed: {e.Message}");
+				return (int)HapticResult.PlatformError;
+			}
+		}
+
+		public int PlayComposition(int[] primitiveIds, float[] scales, int[] delaysMs)
+		{
+			try
+			{
+				return _bridge.Call<int>("playComposition", primitiveIds, scales, delaysMs);
+			}
+			catch (Exception e)
+			{
+				Debug.LogError($"[cap-haptics] playComposition failed: {e.Message}");
+				return (int)HapticResult.PlatformError;
+			}
+		}
+
 		public int PlayWaveform(long[] timingsMs, int[] amplitudes, int repeatIndex)
 		{
 			try

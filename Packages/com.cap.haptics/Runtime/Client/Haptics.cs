@@ -126,6 +126,55 @@ namespace Cap.Haptics.Client
 		}
 
 		/// <summary>
+		/// Plays a designer-authored <see cref="HapticPatternAsset"/> (M3). The asset's
+		/// <see cref="HapticPatternAsset.Mode"/> is authoritative — a Composition asset is a
+		/// composition, always — and degradation on lower tiers happens natively, through
+		/// the same per-primitive/effect approximation machinery the built-in patterns use.
+		/// The forced-tier override therefore applies to assets too.
+		/// </summary>
+		/// <param name="intensity">0..1. Scales composition step strengths and waveform
+		/// amplitudes; a predefined effect plays as tuned — the platform offers no dial.</param>
+		public static HapticResult Play(HapticPatternAsset? asset, float intensity = 1f)
+		{
+			if (asset == null)
+				return HapticResult.InvalidArgument;
+			if (_backend == null || !IsInitialized)
+				return HapticResult.NotInitialized;
+
+			switch (asset.Mode)
+			{
+				case HapticPatternAsset.PatternMode.Composition:
+				{
+					var steps = asset.Composition;
+					if (steps.Count == 0)
+						return HapticResult.InvalidArgument;
+					var ids = new int[steps.Count];
+					var scales = new float[steps.Count];
+					var delays = new int[steps.Count];
+					var clamped = float.IsNaN(intensity) ? 1f : Mathf.Clamp01(intensity);
+					for (var i = 0; i < steps.Count; i++)
+					{
+						ids[i] = (int)steps[i].primitive;
+						scales[i] = Mathf.Clamp01(steps[i].scale * clamped);
+						delays[i] = steps[i].delayMs;
+					}
+					return HapticResultExtensions.FromCode(_backend.PlayComposition(ids, scales, delays));
+				}
+
+				case HapticPatternAsset.PatternMode.PredefinedEffect:
+					return HapticResultExtensions.FromCode(_backend.PlayEffect((int)asset.Effect));
+
+				default:
+				{
+					asset.BuildWaveform(intensity, out var timings, out var amplitudes);
+					if (timings.Length == 0)
+						return HapticResult.InvalidArgument;
+					return HapticResultExtensions.FromCode(_backend.PlayWaveform(timings, amplitudes, -1));
+				}
+			}
+		}
+
+		/// <summary>
 		/// Debug affordance: pin playback to a lower tier to feel the fallback paths on
 		/// hardware that would never choose them. Pass null to return to automatic
 		/// selection; requests above the device's natural tier are clamped.
