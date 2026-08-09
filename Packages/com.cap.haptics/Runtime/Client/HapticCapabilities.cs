@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Cap.Haptics
+namespace Cap.Haptics.Client
 {
 	/// <summary>
 	/// C# mirror of the capability snapshot the native SDK probed at init — what the device

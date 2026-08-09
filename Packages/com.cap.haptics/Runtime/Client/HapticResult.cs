@@ -1,4 +1,4 @@
-namespace Cap.Haptics
+namespace Cap.Haptics.Client
 {
 	/// <summary>
 	/// Outcome of a playback call. Nothing in this SDK throws — every failure comes back as

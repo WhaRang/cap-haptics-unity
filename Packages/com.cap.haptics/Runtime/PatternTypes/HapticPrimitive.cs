@@ -1,4 +1,6 @@
-namespace Cap.Haptics
+using Cap.Haptics.Client;
+
+namespace Cap.Haptics.PatternTypes
 {
 	/// <summary>
 	/// Composition primitives behind the native T3 tier. Mirrors the Kotlin

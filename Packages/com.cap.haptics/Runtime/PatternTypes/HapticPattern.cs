@@ -1,4 +1,4 @@
-namespace Cap.Haptics
+namespace Cap.Haptics.PatternTypes
 {
 	/// <summary>
 	/// The SDK's semantic vocabulary — ask for a <i>meaning</i> and the native library

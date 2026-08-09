@@ -14,16 +14,14 @@ Editor and on non-Android platforms every call is a log-only no-op, and nothing 
    ```
    The two native AARs ship inside the package — nothing else to install.
 2. **Set Android Minimum API Level to 26** (Player Settings → Other Settings). The `VIBRATE`
-   permission merges in automatically from the AAR's manifest.
-3. **Declare kotlin-stdlib.** The AARs are Kotlin, and Unity's flatDir packaging drops
-   transitive dependencies, so enable *Custom Main Gradle Template* (Player Settings →
-   Publishing Settings) and add one line under `dependencies`:
-   ```gradle
-   implementation 'org.jetbrains.kotlin:kotlin-stdlib:2.2.10'
-   ```
-4. **Initialize once, then play:**
+   permission merges in automatically from the AAR's manifest, and the package injects the
+   kotlin-stdlib dependency into the exported Gradle project at build time — no Gradle
+   templates, no manual steps. (Projects that already declare kotlin-stdlib through their
+   own `mainTemplate.gradle` are detected and left untouched.)
+3. **Initialize once, then play:**
    ```csharp
-   using Cap.Haptics;
+   using Cap.Haptics.Client;
+   using Cap.Haptics.PatternTypes;
 
    Haptics.Initialize();                                  // once, at startup
    Haptics.Play(HapticPattern.Success);                   // meaning in, buzz out

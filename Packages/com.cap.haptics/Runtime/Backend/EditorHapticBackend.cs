@@ -1,6 +1,8 @@
+using Cap.Haptics.Client;
+using Cap.Haptics.PatternTypes;
 using UnityEngine;
 
-namespace Cap.Haptics
+namespace Cap.Haptics.Backend
 {
 	/// <summary>
 	/// L1 stub for the Editor and every non-Android platform: logs instead of vibrating,
@@ -15,7 +17,7 @@ namespace Cap.Haptics
 	{
 		private bool _verbose;
 
-		public int GetBridgeVersion() => Haptics.ExpectedBridgeVersion;
+		public int GetBridgeVersion() => Client.Haptics.ExpectedBridgeVersion;
 
 		public bool Initialize(bool verboseLogging)
 		{
@@ -31,7 +33,7 @@ namespace Cap.Haptics
 		/// to be a device it has never met.
 		/// </summary>
 		public string GetCapabilitiesJson() =>
-			"{\"bridgeVersion\":" + Haptics.ExpectedBridgeVersion + "," +
+			"{\"bridgeVersion\":" + Client.Haptics.ExpectedBridgeVersion + "," +
 			"\"initialized\":true,\"sdkInt\":0,\"hasVibrator\":false," +
 			"\"hasAmplitudeControl\":false,\"vibratorCount\":0," +
 			"\"deviceTier\":0,\"activeTier\":0,\"viewFeedbackAvailable\":false," +
@@ -45,7 +47,7 @@ namespace Cap.Haptics
 		public string GetEnumManifestJson()
 		{
 			var sb = new System.Text.StringBuilder();
-			sb.Append("{\"bridgeVersion\":").Append(Haptics.ExpectedBridgeVersion);
+			sb.Append("{\"bridgeVersion\":").Append(Client.Haptics.ExpectedBridgeVersion);
 			AppendEnum<HapticPattern>(sb, "patterns");
 			AppendEnum<HapticPrimitive>(sb, "primitives");
 			AppendEnum<PredefinedEffect>(sb, "effects");

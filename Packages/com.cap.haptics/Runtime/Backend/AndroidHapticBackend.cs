@@ -2,8 +2,9 @@
 using System;
 using UnityEngine;
 using UnityEngine.Android;
+using HapticResult = Cap.Haptics.Client.HapticResult;
 
-namespace Cap.Haptics
+namespace Cap.Haptics.Backend
 {
 	/// <summary>
 	/// L2 — the JNI bridge to <c>com.cap.haptics.unity.HapticsBridge</c>.

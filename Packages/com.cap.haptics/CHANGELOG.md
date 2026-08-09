@@ -3,6 +3,20 @@
 All notable changes to this package are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com); versions follow [semver](https://semver.org).
 
+## [0.6.0] - 2026-08-08
+
+### Added
+- **M1 — zero-setup Android install**: an editor build hook
+  (`IPostGenerateGradleAndroidProject`) injects the kotlin-stdlib dependency into the
+  exported Gradle project automatically. The manual Custom Main Gradle Template step is
+  gone; projects that already declare kotlin-stdlib are detected and left untouched.
+
+### Changed
+- Runtime scripts reorganized into `Backend` / `Client` / `PatternTypes` folders with
+  matching sub-namespaces (`Cap.Haptics.Client.Haptics`, `Cap.Haptics.PatternTypes.HapticPattern`).
+  **Breaking for early adopters:** update `using Cap.Haptics;` accordingly.
+- README install steps reduced from four to three.
+
 ## [0.5.0] - 2026-08-06
 
 ### Added

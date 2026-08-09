@@ -1,4 +1,4 @@
-namespace Cap.Haptics
+namespace Cap.Haptics.PatternTypes
 {
 	/// <summary>
 	/// The four platform-tuned effects behind the native T2 tier. Mirrors the Kotlin

@@ -1,4 +1,4 @@
-using Cap.Haptics;
+using Cap.Haptics.Client;
 using UnityEngine;
 
 namespace Cap.Haptics.Samples
