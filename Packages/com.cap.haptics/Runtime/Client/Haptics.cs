@@ -59,6 +59,8 @@ namespace Cap.Haptics.Client
 			{
 #if UNITY_ANDROID && !UNITY_EDITOR
 				_backend = new AndroidHapticBackend();
+#elif UNITY_IOS && !UNITY_EDITOR
+				_backend = new IosHapticBackend();
 #else
 				_backend = new EditorHapticBackend();
 #endif

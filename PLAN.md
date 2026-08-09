@@ -19,8 +19,11 @@ closes.*
 (zero-setup install — kotlin-stdlib auto-injected at Gradle export), **M3 ✅** (pattern
 assets with adb edit-mode preview, verified on-device). **M2 deferred by decision**: git
 init + CI for the android/unity/**ios** repos will happen as one batch once
-`cap-haptics-ios` exists. **Open:** M2 (batched), M4 (device matrix), M5 (iOS — next, on a
-macOS machine), M6 (Asset Store).
+`cap-haptics-ios` exists. **Open:** M2 (batched), M4 (device matrix), M5 (iOS — in progress
+on the mac; the detailed plan is **§11**. I0–I1 done, verified on the iPhone 2026-08-09:
+Swift-in-Unity + P/Invoke handshake works. I2 verified on-device. I3 implemented — Core
+Haptics playback (patterns/compositions/waveforms, engine lifecycle), 22 `swift test`
+cases green — pending on-device feel pass), M6 (Asset Store).
 
 **Versions:** UPM package **0.9.0** · bridge ABI **v2** · AAR modules compileSdk 36 (the
 Unity-AGP ceiling, §2) · kotlin-stdlib **2.2.10** injected by `Editor/KotlinStdlibInjector.cs`
@@ -719,6 +722,9 @@ Fills the L1 slot reserved since §3. The tier model maps better than expected:
 **Done when:** `Haptics.Play(Success)` feels correct on an iPhone, the capability panel
 reports the iOS tier honestly, and the Editor stub is untouched.
 
+*The full iOS implementation plan — architecture, tier mapping, degradation column,
+P/Invoke ABI rules, and the I0–I7 phase schedule — is **§11**.*
+
 ### M6 — Asset Store submission
 
 - **Demo scene**: a real canvas with buttons wired to `Haptics.Play` — intended-usage look.
@@ -748,3 +754,207 @@ section.
 - Real screenshots for the repo README placeholders.
 - OpenUPM listing as an early, low-ceremony distribution channel before (or alongside) the
   Asset Store.
+
+---
+
+## 11. iOS implementation plan (M5)
+
+**This is the current focus.** Written 2026-08-09 on the macOS machine, before any iOS code
+exists. The governing invariant from §10 M5: **the semantic API does not change at all** —
+`Haptics.Play(HapticPattern.Success)` and `Haptics.Play(asset)` work identically at every
+call site; only the backend behind `IHapticBackend` is new. Game code gains at most an
+`#elif UNITY_IOS` awareness in exactly one place (`Haptics.Initialize`), which lives in the
+package, not the game.
+
+### 11.1 Locked decisions (iOS)
+
+| Decision | Value | Consequence |
+|---|---|---|
+| Native language | **Swift**, with a thin `@_cdecl` C surface | Modern API access; Unity sees only C symbols |
+| Interop | **P/Invoke `[DllImport("__Internal")]`** | iOS is statically linked — no dylib name, no JNI-style reflection; symbols resolve at link time, so a missing native file fails the Xcode build, not runtime |
+| Plugin delivery | **Swift source files in `Plugins/iOS/`** (not a prebuilt `.xcframework`) — *revises the §"Current state" note* | Unity compiles them into the exported Xcode project; no build pipeline, no Swift-ABI/stdlib-linking issues, diffable in the Unity package. `cap-haptics-ios` still hosts the canonical sources + the SwiftUI harness app; a copy script replaces the AAR-copy Gradle task |
+| Deployment floor | **iOS 13** | `CHHapticEngine` (13.0) and generator `intensity:` overloads (13.0) both in reach; Unity 6's own minimum is ≥13 anyway |
+| Tier numbering | **Reuse `HapticTier` wire levels** | iOS lands on 3 (Core Haptics), 2 (generators), or 0 (no-op). **There is no iOS T1** — no arbitrary-waveform API below Core Haptics — so `Waveform=1` is simply never reported |
+| Bridge versioning | Native `capHapticsGetBridgeVersion()` returns its **own** constant, checked against `ExpectedBridgeVersion` | Same failure philosophy as the AAR; guards a stale `Plugins/iOS` copy exactly like a stale AAR |
+| Enum manifest | `GetEnumManifestJson` generated **from the local C# enums** (the Editor stub's generator, reused) | There is no second language runtime to drift from — the wire ids never leave C#-land except as ints into Swift's mapping tables, which I-phase tests cover instead |
+| Test device | The user's iPhone (Core Haptics capable — any iPhone 8+) | Like the S26: top tier always chosen naturally → **forced-tier override is again mandatory, not optional** (I4) |
+
+### 11.2 Tier mapping and capability probe
+
+Probe once at init, select once — same shape as §3.1.
+
+| Tier (wire) | iOS mechanism | Gate | Feel |
+|---|---|---|---|
+| **3 — Composed** | `CHHapticEngine`: transient + continuous events, per-event intensity/sharpness | `CHHapticEngine.capabilitiesForHardware().supportsHaptics` | Full parity with Android T3 — and strictly more expressive (continuous envelopes) |
+| **2 — Predefined** | `UIImpactFeedbackGenerator` (light/medium/heavy/soft/rigid), `UINotificationFeedbackGenerator` (success/warning/error), `UISelectionFeedbackGenerator` | iPhone (`userInterfaceIdiom == .phone`) and **not** `supportsHaptics` | OEM-tuned single beats; **cannot sequence reliably** (same lesson as Android T2, §3.2) and no queryable support — encode as `UNKNOWN`, like Android API 29 |
+| **0 — None** | well-behaved no-op | everything else: iPad, simulator, iPod touch | Capabilities say so honestly |
+
+In practice tier 2 is nearly empty (iPhone 7/8/X without Core Haptics are iOS-13-capable but
+ancient); it exists so degradation is designed, not accidental — and the forced-tier override
+makes it feelable on any iPhone.
+
+**Capabilities JSON** — same shape, same keys, parsed by the existing
+`HapticCapabilities.FromJson` with zero changes (reference: `CapabilitiesJson.kt`,
+`EditorHapticBackend.GetCapabilitiesJson`):
+- `sdkInt` — iOS major version (e.g. 19). The diagnostics overlay just prints it.
+- `hasVibrator` — true if either tier 3 or tier 2 is available.
+- `hasAmplitudeControl` — true iff Core Haptics (generators have fixed tuning; the
+  `intensity:` parameter on impact generators is coarse, not an amplitude channel).
+- `vibratorCount` — 1 or 0. `viewFeedbackAvailable` — false (no such channel on iOS).
+- `systemHapticsEnabled` — `"UNKNOWN"`: the Settings → Sounds & Haptics switch is not
+  queryable. The engine's stopped-handler reason (`.systemPolicy`) upgrades this to a
+  logged hint at playback time, not at probe time.
+- `effects[]` — the `PredefinedEffect` wire ids with support `YES` on any haptic iPhone
+  (generators exist), `UNKNOWN` on the pre-probe-API devices, `NO` otherwise.
+- `primitives[]` — the `HapticPrimitive` wire ids: `YES` across the board when
+  `supportsHaptics` (every primitive is synthesized from CH events — there is no
+  per-primitive hardware lottery on iOS), `NO` otherwise; `durationMs` from our own
+  synthesis table.
+
+### 11.3 The P/Invoke boundary — the iOS ABI
+
+Different mechanics from JNI, same discipline (§3.3). The C surface, one function per
+`IHapticBackend` member plus the string-memory helper:
+
+```c
+int32_t capHapticsGetBridgeVersion(void);
+bool    capHapticsInitialize(bool verbose);
+// Returned char* is strdup'd; C# marshals then frees via capHapticsFreeString.
+const char* capHapticsGetCapabilitiesJson(void);
+int32_t capHapticsPlayPattern(int32_t patternId, float intensity);
+int32_t capHapticsSetForcedTier(int32_t tierLevel);        // negative = auto; returns tier in effect
+int32_t capHapticsPlayEffect(int32_t effectId);
+int32_t capHapticsPlayComposition(const int32_t* primitiveIds, const float* scales,
+                                  const int32_t* delaysMs, int32_t count);
+int32_t capHapticsPlayWaveform(const int64_t* timingsMs, const int32_t* amplitudes,
+                               int32_t timingsCount, int32_t amplitudesCount, int32_t repeatIndex);
+void    capHapticsCancel(void);
+void    capHapticsFreeString(const char* s);
+```
+
+Rules:
+- **Arrays cross as pointer + explicit count.** C# passes the managed arrays directly
+  (the marshaller pins for the call); Swift copies into buffers **before** returning,
+  never retains the pointers.
+- **No exceptions/`fatalError` may escape.** Every `@_cdecl` body catches, logs under the
+  verbose flag (`os_log` subsystem `com.cap.haptics` — the `adb logcat -s CapHaptics:V`
+  equivalent is Console.app / `xcrun devicectl` log streaming), and returns a
+  `HapticResult` code. Same no-throw audit as A7.
+- **Threading:** all `UIFeedbackGenerator` and `CHHapticEngine` work hops to the main
+  queue **inside the plugin** (`DispatchQueue.main.async`), mirroring how Kotlin marshals
+  `performHapticFeedback`. Playback calls return immediately (fire-and-forget, like
+  Android); only init blocks (`DispatchQueue.main.sync` if needed) because its return
+  value is the probe result.
+- `GetEnumManifestJson` never crosses the boundary — C#-generated (§11.1).
+- **`IosHapticBackend.cs`** is compiled under `UNITY_IOS && !UNITY_EDITOR`, wraps every
+  extern in try/catch like `AndroidHapticBackend`, and `Haptics.Initialize` gains the
+  `#elif UNITY_IOS && !UNITY_EDITOR` arm — the only C# branch-point change.
+
+### 11.4 Degradation matrix — the iOS column (the design artifact, again)
+
+Core Haptics events use intensity ∩ **sharpness** (≈ frequency): sharp+short ≈ Android's
+crisp primitives, soft+long ≈ THUD. Starting draft; tune by feel in I3, exactly like A5.
+Perceptible-floor rule from §3.2 carries over (CH intensity below ~0.3 vanishes on the
+Taptic Engine too); intensity scaling maps onto `[floor, 1]` inside Swift.
+
+| Pattern | Tier 3 (Core Haptics) | Tier 2 (generators) |
+|---|---|---|
+| `Selection` | transient i0.4 s0.6 | `UISelectionFeedbackGenerator.selectionChanged()` |
+| `ImpactLight` | transient i0.4 s0.5 | impact(.light) |
+| `ImpactMedium` | transient i0.7 s0.5 | impact(.medium) |
+| `ImpactHeavy` | transient i1.0 s0.6 | impact(.heavy) |
+| `Success` | continuous rise 60 ms i0.5→ transient i1.0 s0.7 | notification(.success) |
+| `Warning` | transient i0.8 + transient i0.5 @+120 ms | notification(.warning) |
+| `Error` | transient i0.9 ×3, 90 ms apart | notification(.error) |
+| `RampUp` | continuous 400 ms, intensity curve 0.2→1.0 | impact(.soft) → impact(.rigid) @+300 ms (best effort) |
+| `Heartbeat` | transient i0.8 s0.25 + transient i0.5 s0.25 @+90 ms | impact(.heavy) ×2, 90 ms apart (best effort) |
+| `LongPress` | transient i0.6 s0.4 | impact(.medium) |
+
+Notice tier 2 is *richer* than Android T2 for the notification patterns — `Success`,
+`Warning`, `Error` have native OEM-tuned renderings instead of falling to a waveform. The
+matrix rewards designing per-platform instead of translating.
+
+**Primitive synthesis table (I3):** `PlayComposition` maps each `HapticPrimitive` wire id to
+a CH event recipe — `CLICK`→transient s0.7; `TICK`→transient i×0.6 s1.0; `LOW_TICK`→transient
+s0.2; `THUD`→transient s0.1 (or 40 ms continuous soft); `QUICK_RISE`/`SLOW_RISE`/`QUICK_FALL`→
+continuous with an intensity ramp (150/500/100 ms); `SPIN`→continuous 200 ms with an
+intensity+sharpness wobble. Step `delayMs` becomes relative event times in **one**
+`CHHapticPattern` — a single engine play call, no scheduling smear (the Android T2 lesson).
+
+**`PlayWaveform` on tier 3:** off/on segments → continuous events at the segment's relative
+time, `amplitude/255 → intensity` (floor-mapped), fixed s≈0.5; empty amplitudes → i0.8.
+`repeatIndex ≥ 0` loops via a repeating `CHHapticPatternPlayer` schedule until `Cancel`.
+On tier 2: collapse each on-segment to the nearest impact style by amplitude, schedule with
+`DispatchQueue.asyncAfter` — best effort, documented as such. **`HapticPatternAsset` then
+works unchanged, for free** — `Play(asset)` already routes by mode through the seam.
+
+**Engine lifecycle (the iOS-specific risk):** `CHHapticEngine` stops on backgrounding,
+audio-session interruptions, and system policy. Set `resetHandler` (recreate + restart) and
+`stoppedHandler` (record reason); lazily `start()` before play if stopped. Getting this wrong
+is the iOS equivalent of the stale-AAR bug: works in the first minute, dies after the first
+phone call.
+
+### 11.5 `cap-haptics-ios` repo layout
+
+```
+cap-haptics-ios/
+├── Sources/CapHaptics/            the canonical plugin sources (all Swift)
+│   ├── CapHapticsBridge.swift     @_cdecl surface — no-throw, C types only      I1
+│   ├── BridgeVersion.swift        native ABI constant                           I1
+│   ├── CapabilityProbe.swift      probe → capabilities struct                   I2
+│   ├── CapabilitiesJson.swift     struct → JSON string (hand-rolled, like Json.kt) I2
+│   ├── TierSelector.swift         pure fn: capabilities + forcedTier → tier     I2
+│   ├── backend/
+│   │   ├── HapticBackend.swift    protocol: the internal seam                   I3
+│   │   ├── CoreHapticsBackend.swift  tier 3 — engine lifecycle + event synthesis I3
+│   │   ├── GeneratorBackend.swift    tier 2 — the three generator families      I4
+│   │   └── NoOpBackend.swift                                                    I2
+│   ├── pattern/
+│   │   ├── PatternRegistry.swift  the §11.4 matrix                              I3
+│   │   ├── PrimitiveSynthesis.swift  primitive wire id → CH event recipe        I3
+│   │   └── IntensityScaler.swift  floor-mapped scaling (§3.2 rule)              I3
+│   └── util/HLog.swift            os_log wrapper, verbose-gated                 I1
+├── HarnessApp/                    SwiftUI test app — :app's role: pattern grid,
+│                                  tier switcher, capability dump; feel-iteration
+│                                  without Unity in the loop                     I2+
+├── Tests/CapHapticsTests/         XCTest: TierSelector over simulated caps,
+│                                  JSON shape, synthesis-table ids ↔ C# wire ids I2+
+└── scripts/install-unity-plugin.sh  copies Sources/CapHaptics → Unity package
+                                     Plugins/iOS/ (the gradlew installUnityPlugin twin)
+```
+
+Same testability constraint as §5.2: `CapabilityProbe` is the only file touching the
+platform for probing; `TierSelector`, the registry, synthesis and scaling are pure over a
+capabilities struct — XCTest-able on any Mac, no iPhone required.
+
+**Unity package side:** `Plugins/iOS/` gains the Swift files (marked iOS-only in the
+`.meta` importer settings); `Runtime/Backend/IosHapticBackend.cs` compiles under
+`UNITY_IOS`; no `.asmdef` change needed.
+
+### 11.6 Phases
+
+| # | Phase | Creates | Done when |
+|---|---|---|---|
+| **I0** | Toolchain proof | Xcode + Unity iOS Build Support verified; empty Unity iOS build runs on the iPhone; repo skeleton committed | The slowest, most environment-fragile step passes before any real code exists |
+| **I1** | **Hello bridge** (U1's twin) | `CapHapticsBridge.swift` with `getBridgeVersion` only + `HLog`; copy script; `IosHapticBackend` stub; `#elif UNITY_IOS` arm in `Haptics.Initialize` | Unity app on iPhone logs the native bridge version via P/Invoke — proves Swift-in-Unity compilation, `@_cdecl` symbol resolution, and the version handshake while everything is trivial |
+| **I2** | Capability probe + selection | `CapabilityProbe`, `CapabilitiesJson`, `TierSelector`, `NoOpBackend`; harness app with capability dump; XCTests for selector + JSON | Diagnostics overlay in the Unity build shows honest iOS capabilities parsed by the **unchanged** C# parser; simulator reports tier 0 gracefully |
+| **I3** | Core Haptics backend | `CoreHapticsBackend` + engine lifecycle, `PatternRegistry`, `PrimitiveSynthesis`, `IntensityScaler`; `playPattern`/`playComposition`/`playWaveform` on tier 3; harness pattern grid | All 10 patterns feel right on the iPhone (the A5-style tuning session, in the harness); backgrounding + a phone call don't kill playback for the rest of the session |
+| **I4** | Generator backend + forced tier | `GeneratorBackend`, `setForcedTier` (clamped, like Android), tier switcher in harness | Forcing tier 2 on the Core-Haptics iPhone audibly/haptically changes rendering; every pattern still fires; waveform best-effort works |
+| **I5** | Full Unity integration | Complete `IosHapticBackend`, C#-side enum manifest wiring, `Cancel`, asset routing verified | Unity demo scene: pattern grid, playground sliders, **`HapticPatternAsset`s** all work on the iPhone; capability panel + tier override work end to end |
+| **I6** | Hardening | No-throw audit of every `@_cdecl` body; fuzz the boundary from C# (negative counts, huge arrays, calls before init, double init, cancel-while-playing); interruption-recovery test | Nothing crashes; result codes are honest; A7's bar, on iOS |
+| **I7** | Docs + closeout | README section (iOS install = nothing to do — files ship in the package), §11.4 matrix updated with tuned values, snapshot section updated, M5 marked done | §10 M5's done-when holds: `Play(Success)` feels correct, capability panel honest, Editor stub untouched |
+
+I1 before any haptics code for the same reason U1 existed: the interop toolchain is the
+highest-risk, lowest-information-per-failure part — prove it while failures are readable.
+
+### 11.7 iOS-specific risks
+
+| Risk | Mitigation |
+|---|---|
+| Swift-in-Unity compilation quirks (bridging, symbol visibility) | I1 proves the whole chain with one trivial function; `@_cdecl` + C types only |
+| `CHHapticEngine` silently stopped (background, interruption, policy) | reset/stopped handlers + lazy restart-before-play (I3); harness has a "call me then retry" test step |
+| One iPhone, always tier 3 → generator path never chosen naturally | Forced-tier override (I4) + pure `TierSelector` XCTests — the §2 story, verbatim |
+| System Haptics toggle off → silent no-op mistaken for a bug | Not queryable; diagnostics states `UNKNOWN` + README FAQ; stopped-reason logged when the engine refuses |
+| Simulator has no haptics at all | Tier 0 path is a first-class citizen from I2; every feel-criterion is on-device |
+| Stale plugin copy in Unity package | Native bridge-version handshake (I1) — the stale-AAR defense, ported |
+| Generator timing smear for multi-beat best-effort renderings | Accepted and documented; tier 2 is a fallback for hardware that barely exists — correctness over beauty |
