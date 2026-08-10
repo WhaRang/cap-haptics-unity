@@ -139,7 +139,8 @@ namespace Cap.Haptics.Client
 			DrawSlider("amplitude", ref _amplitude, 1f, 255f, "0");
 			_repeat = GUILayout.Toggle(_repeat, " repeat (runs until Cancel)");
 
-			var (timings, amplitudes) = BuildPulseTrain();
+			var (timings, amplitudes) = BuildPulseTrain(
+				Mathf.RoundToInt(_pulseCount), (long)_pulseMs, (long)_gapMs, Mathf.RoundToInt(_amplitude));
 			GUILayout.Label($"timings [{string.Join(",", timings)}]\namps    [{string.Join(",", amplitudes)}]");
 
 			GUILayout.Space(4);
@@ -159,16 +160,21 @@ namespace Cap.Haptics.Client
 			GUILayout.Label($"last: {_lastAction}");
 		}
 
-		private (long[] timings, int[] amplitudes) BuildPulseTrain()
+		/// <summary>
+		/// Pulse train in the wire's off/on-alternating shape: no leading gap on the
+		/// first pulse, `gapMs` before every later one. Static so the shape is
+		/// unit-testable; the GUI supplies its slider values at the call site.
+		/// </summary>
+		internal static (long[] timings, int[] amplitudes) BuildPulseTrain(
+			int pulses, long pulseMs, long gapMs, int amplitude)
 		{
-			var pulses = Mathf.RoundToInt(_pulseCount);
 			var timings = new long[pulses * 2];
 			var amplitudes = new int[pulses * 2];
 			for (var i = 0; i < pulses; i++)
 			{
-				timings[i * 2] = i == 0 ? 0 : (long)_gapMs;
-				timings[i * 2 + 1] = (long)_pulseMs;
-				amplitudes[i * 2 + 1] = Mathf.RoundToInt(_amplitude);
+				timings[i * 2] = i == 0 ? 0 : gapMs;
+				timings[i * 2 + 1] = pulseMs;
+				amplitudes[i * 2 + 1] = amplitude;
 			}
 			return (timings, amplitudes);
 		}

@@ -28,8 +28,19 @@ nothing" FAQ. Two iOS lessons recorded in §11.7 and the ios repo README: (1) a 
 haptics-only `CHHapticEngine` owns the actuator, so it is *released* before generator
 playback; (2) **generators obey the System Haptics toggle, Core Haptics does not** — tier 2
 silent while tier 3 buzzes is that setting, not a bug; `systemHapticsEnabled` stays
-`UNKNOWN` (not queryable). **Open:** M2 (batched git+CI — now truly next, all three repos
-exist), M4 (device matrix), M6 (Asset Store). **Workspace note:** repos moved to
+`UNKNOWN` (not queryable). **M2 mostly ✅ (2026-08-10):** all three repos turned out to already be on GitHub
+(`WhaRang/cap-haptics-*`) with clean trees — the un-versioned-workspace premise was stale,
+and PLAN.md is versioned inside the unity repo, so the copy-into-android idea is dropped
+(a duplicate would drift). Done: `v0.10.0` tags on all three repos; CI workflows committed
+(android: `gradlew build` on temurin-21 — if AGP 9.3 demands a newer JDK the run will say
+so; ios: `swift test` + device-SDK typecheck on macos-15). CI verified green on GitHub. C# editmode
+tests written (2026-08-10): `Tests/Editor/` in the package (+`testables` in the project
+manifest, `InternalsVisibleTo` from Runtime) — capabilities JSON (full blob, stub shape,
+empty/garbage → null, missing-field defaults), EnumManifestValidator (agreement,
+Kotlin-naming normalization, id/name drift, missing section, appended-entry tolerance,
+multi-problem reporting), and the overlay's pulse-train builder (extracted to an internal
+static for testability). **M2 done when** the suite is green in the Editor test runner.
+**Open:** M4 (device matrix), M6 (Asset Store). **Workspace note:** repos moved to
 `~/dev/Alex/` (2026-08-10) — iCloud sync of `~/Documents` was corrupting Unity builds with
 "name 2" file duplicates; never keep Unity projects in synced folders.
 
