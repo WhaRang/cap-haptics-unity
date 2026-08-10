@@ -3,6 +3,26 @@
 All notable changes to this package are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com); versions follow [semver](https://semver.org).
 
+## [0.10.0] - 2026-08-10
+
+### Added
+- **iOS backend.** The same semantic API now plays on iPhone: Core Haptics on tier 3
+  (all 10 patterns, compositions with every primitive synthesized from CH events, and
+  waveforms rendered as continuous-event envelopes), `UIFeedbackGenerator` on tier 2
+  (native notification/impact/selection renderings, with waveforms and compositions
+  degraded to merged impact beats), honest no-op on haptic-less hardware (iPad,
+  simulator). Swift plugin sources ship in `Plugins/iOS/` and compile into the exported
+  Xcode project — zero configuration. The forced-tier override, intensity dial,
+  `HapticPatternAsset` (all three modes), repeat + cancel, and the diagnostics overlay
+  work unchanged; the capabilities panel reports the iOS probe through the same JSON.
+- Native bridge-version handshake for iOS, mirroring the AAR check: stale Swift sources
+  fail `Initialize()` loudly.
+
+### Notes
+- iOS has no tier 1 — the ladder is 3 → 2 → 0; forcing tier 1 lands on 2.
+- The generator tier obeys the System Haptics setting while Core Haptics does not; see
+  the README's "I felt nothing" FAQ.
+
 ## [0.9.0] - 2026-08-09
 
 ### Changed

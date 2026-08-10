@@ -57,12 +57,10 @@ final class CoreHapticsBackend {
 		activePlayer = nil
 	}
 
-	/// Releases the engine so the haptic hardware is free for `UIFeedbackGenerator`: a
-	/// running haptics-only engine suppresses generator (and system) haptics — found
-	/// on-device in I4 when forcing tier 2 played nothing after any tier-3 playback.
-	/// Destroyed rather than stopped: `stop()` is async and the handover is not
-	/// guaranteed prompt; releasing the object is the strong form. The next tier-3
-	/// play recreates lazily via `ensureRunningEngine`.
+	/// Releases the engine before generator playback: a running haptics-only engine
+	/// owns the actuator and can suppress generator (and system) haptics. Destroyed
+	/// rather than stopped — `stop()` is async and the handover is not guaranteed
+	/// prompt. The next tier-3 play recreates lazily via `ensureRunningEngine`.
 	func suspend() {
 		guard engine != nil else {
 			return

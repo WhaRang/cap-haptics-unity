@@ -27,10 +27,8 @@ final class GeneratorBackend {
 	private var impacts: [BeatStyle: UIImpactFeedbackGenerator] = [:]
 	private var pending: [DispatchWorkItem] = []
 
-	/// Unity's root view. Since iOS 17.5 the view-associated generator initializers
-	/// exist, and on recent iOS feedback from an unassociated generator can be
-	/// silently dropped — found on-device in I4: generators fired and returned OK
-	/// with nothing felt.
+	/// Unity's root view, for the iOS 17.5+ view-associated generator initializers —
+	/// the current-API form; unassociated generators are a deprecation candidate.
 	private static func hostView() -> UIView? {
 		let window = UIApplication.shared.connectedScenes
 			.compactMap { $0 as? UIWindowScene }

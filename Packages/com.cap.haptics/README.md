@@ -1,9 +1,9 @@
 # com.cap.haptics
 
-Semantic haptics for Android from Unity. Ask for a **meaning** — `Success`, `ImpactHeavy`,
-`Selection` — and the native SDK renders it through the best vibration API the device
-actually supports, degrading gracefully on weaker hardware. Safe to call anywhere: in the
-Editor and on non-Android platforms every call is a log-only no-op, and nothing ever throws.
+Semantic haptics for Android and iOS from Unity. Ask for a **meaning** — `Success`,
+`ImpactHeavy`, `Selection` — and the native SDK renders it through the best haptics API the
+device actually supports, degrading gracefully on weaker hardware. Safe to call anywhere: in
+the Editor and on other platforms every call is a log-only no-op, and nothing ever throws.
 
 ## Install and make it buzz in 5 minutes
 
@@ -13,11 +13,13 @@ Editor and on non-Android platforms every call is a log-only no-op, and nothing 
    "com.cap.haptics": "file:../relative/path/to/com.cap.haptics"
    ```
    The two native AARs ship inside the package — nothing else to install.
-2. **Set Android Minimum API Level to 26** (Player Settings → Other Settings). The `VIBRATE`
+2. **Android:** set Minimum API Level to 26 (Player Settings → Other Settings). The `VIBRATE`
    permission merges in automatically from the AAR's manifest, and the package injects the
    kotlin-stdlib dependency into the exported Gradle project at build time — no Gradle
    templates, no manual steps. (Projects that already declare kotlin-stdlib through their
    own `mainTemplate.gradle` are detected and left untouched.)
+   **iOS:** nothing to configure — the Swift plugin sources in `Plugins/iOS/` compile into
+   the exported Xcode project automatically (minimum iOS version 13, Unity's floor anyway).
 3. **Initialize once, then play:**
    ```csharp
    using Cap.Haptics.Client;
@@ -71,18 +73,40 @@ straight from Edit mode, no build required — waveforms, compositions and effec
 (The adb channel plays primitives unscaled and effects as tuned; a running app is ground
 truth for scales and degradation.)
 
-## What "no vibrator" and "suppressed" mean
+## How the tiers map per platform
+
+The same semantic API renders differently by hardware, probed once at init:
+
+| Tier | Android | iOS |
+|---|---|---|
+| 3 | `VibrationEffect.Composition` primitives (API 30+, per-primitive support) | Core Haptics (`CHHapticEngine`) |
+| 2 | `createPredefined` OEM effects (API 29+) | `UIFeedbackGenerator` (impact/notification/selection) |
+| 1 | `createWaveform` (the API 26 floor) | — (no waveform API below Core Haptics) |
+| 0 | no vibrator | iPad, simulator |
+
+The debug panel's tier override works on both platforms, so every fallback rendering is
+feelable on one device.
+
+## What "no vibrator" and "suppressed" mean — "I felt nothing" FAQ
 
 `HapticResult.Ok` means the platform accepted the effect — not that the user felt it: system
-settings, OEM intensity sliders and battery saver can silence output invisibly. The one
-honest signal is `HapticResult.Suppressed` from the `LongPress` pattern's system channel,
-which reports the user's actual haptics preference. The Caps tab warns when it can tell.
+settings, OEM intensity sliders and battery saver can silence output invisibly. On Android
+the one honest signal is `HapticResult.Suppressed` from the `LongPress` pattern's system
+channel, which reports the user's actual haptics preference. The Caps tab warns when it can
+tell.
+
+**On iOS, check Settings → Sounds & Haptics → System Haptics.** The generator tier obeys
+that switch while Core Haptics does not — so "tier 3 buzzes but tier 2 is silent" means the
+setting is off, not a bug. The setting is not queryable (the Caps tab shows `UNKNOWN`
+honestly), and `Ok` still comes back: iOS accepts the call and mutes the output.
 
 ## Versioning
 
-The C# layer and the packaged AARs share a versioned ABI. On any mismatch — stale AAR, stale
-C#, drifted enum — `Initialize()` fails loudly at startup with a message saying exactly what
-disagrees, instead of playing the wrong thing later. If you rebuild the native side, ship
-both AARs together (`gradlew installUnityPlugin` does).
+The C# layer and the packaged native code share a versioned ABI. On any mismatch — stale
+AAR or Swift sources, stale C#, drifted enum — `Initialize()` fails loudly at startup with a
+message saying exactly what disagrees, instead of playing the wrong thing later. If you
+rebuild the native side, ship it whole: `gradlew installUnityPlugin` copies both AARs from
+the `cap-haptics-android` repo; `scripts/install-unity-plugin.sh` copies the Swift sources
+from `cap-haptics-ios`.
 
 The native SDK lives in the `cap-haptics-android` repository;

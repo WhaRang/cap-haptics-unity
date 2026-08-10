@@ -19,12 +19,19 @@ closes.*
 (zero-setup install — kotlin-stdlib auto-injected at Gradle export), **M3 ✅** (pattern
 assets with adb edit-mode preview, verified on-device). **M2 deferred by decision**: git
 init + CI for the android/unity/**ios** repos will happen as one batch once
-`cap-haptics-ios` exists. **Open:** M2 (batched), M4 (device matrix), M5 (iOS — in progress
-on the mac; the detailed plan is **§11**. I0–I1 done, verified on the iPhone 2026-08-09:
-Swift-in-Unity + P/Invoke handshake works. I2 verified on-device. I3 verified on-device —
-all 10 patterns render correctly on tier 3. I4 implemented — generator backend, playEffect,
-real tier-2 routing (natural and forced), 30 `swift test` cases green — pending on-device
-verification via the forced-tier switch), M6 (Asset Store).
+`cap-haptics-ios` exists and hosts the M5 plugin. **M5 ✅ (2026-08-10)**: the full §11 plan
+ran I0–I7 in two days; every phase verified on the iPhone, including the I5 checklist
+(assets ×3 modes on both tiers, repeat+cancel, interruption recovery, intensity dial) and
+the I6 hardening pass (boundary no-throw audit, 8k-round fuzz, 34 `swift test` green).
+Package bumped to **0.10.0**; README covers iOS install (zero-step) and the "I felt
+nothing" FAQ. Two iOS lessons recorded in §11.7 and the ios repo README: (1) a running
+haptics-only `CHHapticEngine` owns the actuator, so it is *released* before generator
+playback; (2) **generators obey the System Haptics toggle, Core Haptics does not** — tier 2
+silent while tier 3 buzzes is that setting, not a bug; `systemHapticsEnabled` stays
+`UNKNOWN` (not queryable). **Open:** M2 (batched git+CI — now truly next, all three repos
+exist), M4 (device matrix), M6 (Asset Store). **Workspace note:** repos moved to
+`~/dev/Alex/` (2026-08-10) — iCloud sync of `~/Documents` was corrupting Unity builds with
+"name 2" file duplicates; never keep Unity projects in synced folders.
 
 **Versions:** UPM package **0.9.0** · bridge ABI **v2** · AAR modules compileSdk 36 (the
 Unity-AGP ceiling, §2) · kotlin-stdlib **2.2.10** injected by `Editor/KotlinStdlibInjector.cs`
@@ -760,8 +767,10 @@ section.
 
 ## 11. iOS implementation plan (M5)
 
-**This is the current focus.** Written 2026-08-09 on the macOS machine, before any iOS code
-exists. The governing invariant from §10 M5: **the semantic API does not change at all** —
+**Status: I0–I7 all complete, verified on-device (2026-08-10).** The table stays as the
+historical record. Delivery-format note: §11.1's source-drop decision held — no
+xcframework was ever needed. Written 2026-08-09 on the macOS machine, before any iOS code
+existed. The governing invariant from §10 M5: **the semantic API does not change at all** —
 `Haptics.Play(HapticPattern.Success)` and `Haptics.Play(asset)` work identically at every
 call site; only the backend behind `IHapticBackend` is new. Game code gains at most an
 `#elif UNITY_IOS` awareness in exactly one place (`Haptics.Initialize`), which lives in the
