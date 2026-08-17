@@ -6,6 +6,12 @@ All notable changes to this package are documented here. The format follows
 ## [0.11.0] - 2026-08-17
 
 ### Added
+- **App-level off switch.** `Haptics.Enabled = false` makes every playback call return
+  the new `HapticResult.Disabled` (code 7, appended to the wire enum on all three sides)
+  without reaching the device, and cancels anything already playing; `= true` re-arms
+  instantly. Not persisted by design — wire it to your settings system. `Cancel()` stays
+  functional while disabled. Requires AARs rebuilt from android repo ≥ this version
+  (enum manifest agreement).
 - **Injectable log adaptor.** `Haptics.SetLogger(IHapticsLogger)` routes the C# layer's
   log lines into your own pipeline (file, analytics, silent sink) instead of the Unity
   console; null restores the default. A throwing logger is caught and reported — the

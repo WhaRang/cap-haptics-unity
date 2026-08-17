@@ -44,6 +44,31 @@ namespace CapHaptics.Client
 		/// </summary>
 		public static HapticTier ActiveTier { get; private set; } = HapticTier.None;
 
+		private static bool _enabled = true;
+
+		/// <summary>
+		/// The app-level kill switch — wire it to your settings toggle. While false, every
+		/// playback call returns <see cref="HapticResult.Disabled"/> without reaching the
+		/// device, and switching off cancels anything already buzzing (a repeating waveform
+		/// must not outlive the user's "off"). Switch back on and the next call just plays —
+		/// nothing to re-arm, independent of <see cref="Initialize"/>. Deliberately not
+		/// persisted: your settings system stays the single source of truth; restore this at
+		/// startup. Distinct from <see cref="HapticResult.Suppressed"/>, which reports the
+		/// user's <i>system-level</i> haptics setting.
+		/// </summary>
+		public static bool Enabled
+		{
+			get => _enabled;
+			set
+			{
+				if (_enabled == value)
+					return;
+				_enabled = value;
+				if (!value)
+					Cancel();
+			}
+		}
+
 		/// <summary>
 		/// Routes the SDK's C# log lines somewhere other than the Unity console — your own
 		/// pipeline, a file, an analytics backend, or a silent sink. Pass null to restore
@@ -130,9 +155,12 @@ namespace CapHaptics.Client
 		/// silence; a caller wanting nothing should not call this.</param>
 		public static HapticResult Play(HapticPattern pattern, float intensity = 1f)
 		{
+			// Checked before NotInitialized: the stronger statement of intent wins.
+			if (!_enabled)
+				return HapticResult.Disabled;
 			if (_backend == null || !IsInitialized)
 				return HapticResult.NotInitialized;
-			
+
 			return HapticResultExtensions.FromCode(_backend.PlayPattern((int)pattern, intensity));
 		}
 
@@ -147,6 +175,8 @@ namespace CapHaptics.Client
 		/// amplitudes; a predefined effect plays as tuned — the platform offers no dial.</param>
 		public static HapticResult Play(HapticPatternAsset? asset, float intensity = 1f)
 		{
+			if (!_enabled)
+				return HapticResult.Disabled;
 			if (asset == null)
 				return HapticResult.InvalidArgument;
 			if (_backend == null || !IsInitialized)
@@ -212,6 +242,8 @@ namespace CapHaptics.Client
 		/// <see cref="Cancel"/>.</b></param>
 		public static HapticResult PlayWaveform(long[] timingsMs, int[]? amplitudes = null, int repeatIndex = -1)
 		{
+			if (!_enabled)
+				return HapticResult.Disabled;
 			if (_backend == null || !IsInitialized)
 				return HapticResult.NotInitialized;
 			return HapticResultExtensions.FromCode(

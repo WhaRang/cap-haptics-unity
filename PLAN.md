@@ -94,7 +94,12 @@ class (`com.cap.haptics.unity.HapticsBridge`) deliberately keep `com.cap.haptics
 are compiled into the shipped AARs, invisible to consumers, and renaming them would mean an
 AAR rebuild plus ABI churn for zero user value. Ditto the iOS `os_log` subsystem string.
 
-**0.11.0 (2026-08-17):** injectable log adaptor — `Haptics.SetLogger(IHapticsLogger)`
+**0.11.0 (2026-08-17):** app-level off switch — `Haptics.Enabled` gates all playback with
+the new `HapticResult.Disabled` (wire code 7, appended on all three sides — the first real
+exercise of the append-only ABI rule; **AARs must be rebuilt** via `gradlew
+installUnityPlugin` or Android init fails the manifest check, loudly and by design);
+switching off cancels running playback; not persisted (consumer settings own that).
+Also: injectable log adaptor — `Haptics.SetLogger(IHapticsLogger)`
 routes the C# layer's log lines into the consumer's pipeline (a throwing logger is caught,
 so the no-throw guarantee holds; native logcat/os_log untouched; +3 editmode tests) — and
 an enum-doc sweep: the C# enums are documented as the canonical wire vocabulary rather
@@ -817,8 +822,11 @@ section.
 - **In-build runtime pattern editor**: designers author haptics inside a dev build and
   export back as `HapticPatternAsset` JSON. The market-strong big sibling of the
   PlayerConnection preview — revisit only if the preview proves insufficient.
-- Global intensity / mute setting (persisted, applied inside the library like §3.3's
-  `intensityScale` so semantics stay per-tier consistent).
+- Global intensity multiplier (`Haptics.GlobalIntensity`, 0..1, folded into every call
+  the way the mute switch gates them). The mute half shipped in 0.11.0 as
+  `Haptics.Enabled` — *not* persisted, reversing the old note here: the game's settings
+  system owns persistence, the SDK holding its own PlayerPrefs key would mean two
+  sources of truth.
 - Per-pattern cooldowns — games spam haptics; the SDK should defend the motor.
 - API 36 envelope-effects tier (the §4 stretch goal).
 - Real screenshots for the repo README placeholders.

@@ -9,4 +9,6 @@ enum HapticResult {
 	static let invalidArgument: Int32 = 4
 	static let platformError: Int32 = 5
 	static let suppressed: Int32 = 6
+	/// App-level mute on the C# side; never produced natively.
+	static let disabled: Int32 = 7
 }

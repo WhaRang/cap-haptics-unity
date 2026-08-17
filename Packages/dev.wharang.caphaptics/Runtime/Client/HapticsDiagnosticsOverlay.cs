@@ -98,6 +98,13 @@ namespace CapHaptics.Client
 			GUILayout.Label($"active tier: {Haptics.ActiveTier}   " +
 				$"device tier: {Haptics.Capabilities?.DeviceTier.ToString() ?? "?"}");
 
+			var enabled = GUILayout.Toggle(Haptics.Enabled, " haptics enabled (app-level switch)");
+			if (enabled != Haptics.Enabled)
+			{
+				Haptics.Enabled = enabled;
+				_lastAction = $"Enabled = {enabled}";
+			}
+
 			var tierChoice = GUILayout.SelectionGrid(_tierChoice, TierChoices, 4, GUILayout.Height(30));
 			if (tierChoice != _tierChoice)
 			{

@@ -47,6 +47,19 @@ sliders and sends them through `Haptics.PlayWaveform`.
 Or import the *Haptics Demo* sample from the Package Manager window, which does both calls
 for you.
 
+## The off switch
+
+```csharp
+Haptics.Enabled = false;   // every playback call returns HapticResult.Disabled;
+                           // anything already buzzing is cancelled
+Haptics.Enabled = true;    // next call just plays — nothing to re-arm
+```
+
+Wire it to your settings toggle. It is deliberately **not persisted** — your settings
+system stays the single source of truth; restore the value at startup next to
+`Initialize()`. This is the *app-level* switch: `HapticResult.Suppressed` still reports
+the user's *system-level* haptics setting separately.
+
 ## Routing the SDK's logs
 
 By default the C# layer writes to the Unity console. To send its lines through your own

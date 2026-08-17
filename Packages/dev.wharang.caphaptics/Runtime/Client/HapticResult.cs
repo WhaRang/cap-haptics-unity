@@ -2,8 +2,9 @@ namespace CapHaptics.Client
 {
 	/// <summary>
 	/// Outcome of a playback call. Nothing in this SDK throws — every failure comes back as
-	/// one of these instead. Mirrors the Kotlin <c>HapticResult</c>; values are the wire
-	/// codes, validated against the AAR's enum manifest at init.
+	/// one of these instead. This enum is the canonical definition; values are the wire
+	/// codes, validated against the AAR's enum manifest at init. Append new codes, never
+	/// renumber.
 	/// </summary>
 	public enum HapticResult
 	{
@@ -30,13 +31,18 @@ namespace CapHaptics.Client
 		/// Only the view-feedback channel can report this, which makes it the single most
 		/// useful code here: without it, "I felt nothing" looks identical to a bug.</summary>
 		Suppressed = 6,
+
+		/// <summary>App-level mute: <see cref="Haptics.Enabled"/> is false. Rejected in C#
+		/// before reaching the device — never produced natively. Distinct from
+		/// <see cref="Suppressed"/>, which reports the user's <i>system</i> setting.</summary>
+		Disabled = 7,
 	}
 
 	public static class HapticResultExtensions
 	{
 		public static bool IsSuccess(this HapticResult result) => result == HapticResult.Ok;
 
-		public static HapticResult FromCode(int code) => 
-			code is >= 0 and <= 6 ? (HapticResult)code : HapticResult.PlatformError;
+		public static HapticResult FromCode(int code) =>
+			code is >= 0 and <= 7 ? (HapticResult)code : HapticResult.PlatformError;
 	}
 }
