@@ -7,7 +7,7 @@ using System.IO;
 using UnityEditor.Android;
 using UnityEngine;
 
-namespace Cap.Haptics.Editor
+namespace CapHaptics.Editor
 {
 	/// <summary>
 	/// M1 — zero-setup install: injects the kotlin-stdlib dependency into the Gradle project

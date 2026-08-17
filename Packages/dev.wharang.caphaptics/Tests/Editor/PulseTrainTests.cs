@@ -1,7 +1,7 @@
-using Cap.Haptics.Client;
+using CapHaptics.Client;
 using NUnit.Framework;
 
-namespace Cap.Haptics.Tests
+namespace CapHaptics.Tests
 {
 	/// <summary>
 	/// The playground's pulse-train builder must emit the wire's off/on-alternating

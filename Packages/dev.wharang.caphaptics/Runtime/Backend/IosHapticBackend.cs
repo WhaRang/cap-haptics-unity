@@ -1,10 +1,10 @@
 #if UNITY_IOS && !UNITY_EDITOR
 using System;
 using System.Runtime.InteropServices;
-using Cap.Haptics.Client;
-using HapticResult = Cap.Haptics.Client.HapticResult;
+using CapHaptics.Client;
+using HapticResult = CapHaptics.Client.HapticResult;
 
-namespace Cap.Haptics.Backend
+namespace CapHaptics.Backend
 {
 	/// <summary>
 	/// L2 — the P/Invoke bridge to the Swift plugin in <c>Plugins/iOS/CapHaptics</c>.

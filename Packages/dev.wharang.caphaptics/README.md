@@ -22,8 +22,8 @@ the Editor and on other platforms every call is a log-only no-op, and nothing ev
    the exported Xcode project automatically (minimum iOS version 13, Unity's floor anyway).
 3. **Initialize once, then play:**
    ```csharp
-   using Cap.Haptics.Client;
-   using Cap.Haptics.PatternTypes;
+   using CapHaptics.Client;
+   using CapHaptics.PatternTypes;
 
    Haptics.Initialize();                                  // once, at startup
    Haptics.Play(HapticPattern.Success);                   // meaning in, buzz out
@@ -53,7 +53,7 @@ By default the C# layer writes to the Unity console. To send its lines through y
 pipeline instead — a file, an analytics backend, or a silent sink:
 
 ```csharp
-using Cap.Haptics.Client;
+using CapHaptics.Client;
 
 sealed class MyLogger : IHapticsLogger
 {

@@ -1,9 +1,9 @@
-using Cap.Haptics.Client;
+using CapHaptics.Client;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace Cap.Haptics.Tests
+namespace CapHaptics.Tests
 {
 	/// <summary>
 	/// The C# side of the wire contract: whatever the native side emits must parse, and

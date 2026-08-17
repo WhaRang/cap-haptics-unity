@@ -1,4 +1,4 @@
-namespace Cap.Haptics.Client
+namespace CapHaptics.Client
 {
 	/// <summary>
 	/// Whether the device supports a given effect or primitive. Mirrors the Kotlin

@@ -1,6 +1,6 @@
 {
     "name": "CapHaptics.EditModeTests",
-    "rootNamespace": "Cap.Haptics.Tests",
+    "rootNamespace": "CapHaptics.Tests",
     "references": [
         "CapHaptics.Runtime",
         "UnityEngine.TestRunner",

@@ -1,6 +1,6 @@
 {
     "name": "CapHaptics.Runtime",
-    "rootNamespace": "Cap.Haptics",
+    "rootNamespace": "CapHaptics",
     "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],

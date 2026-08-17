@@ -99,8 +99,11 @@ routes the C# layer's log lines into the consumer's pipeline (a throwing logger 
 so the no-throw guarantee holds; native logcat/os_log untouched; +3 editmode tests) — and
 an enum-doc sweep: the C# enums are documented as the canonical wire vocabulary rather
 than "mirrors of Kotlin", with each platform's real rendering stated (`ViewFeedback` named
-as Android-only). Two feature ideas parked in the backlog: PlayerConnection live device
-preview, in-build runtime pattern editor.
+as Android-only). The **C# root namespace renamed `Cap.Haptics.*` → `CapHaptics.*`**
+(matches the asmdef names and kills the bare-`Haptics`-binds-to-namespace lookup trap;
+assets safe — GUID-bound, no SerializeReference; native ABI untouched). Two feature ideas
+parked in the backlog: PlayerConnection live device preview, in-build runtime pattern
+editor.
 
 **Version control:** all three repos live on GitHub (`WhaRang/cap-haptics-android`,
 `-unity`, `-ios`), tagged `v0.10.0`, CI green (M2). The iOS plugin ships as **Swift

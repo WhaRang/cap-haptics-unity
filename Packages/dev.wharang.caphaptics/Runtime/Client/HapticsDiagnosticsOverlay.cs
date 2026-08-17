@@ -1,9 +1,9 @@
 using System;
 using System.Text;
-using Cap.Haptics.PatternTypes;
+using CapHaptics.PatternTypes;
 using UnityEngine;
 
-namespace Cap.Haptics.Client
+namespace CapHaptics.Client
 {
 	/// <summary>
 	/// The SDK's debug panel, three tabs deep: <b>Caps</b> mirrors the native harness's

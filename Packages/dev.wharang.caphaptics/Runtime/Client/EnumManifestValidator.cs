@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Cap.Haptics.PatternTypes;
+using CapHaptics.PatternTypes;
 using UnityEngine;
 
-namespace Cap.Haptics.Client
+namespace CapHaptics.Client
 {
 	/// <summary>
 	/// Validates the C# enum mirrors against the enum manifest the packaged AAR reports —

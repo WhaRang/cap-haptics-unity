@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Cap.Haptics.Client;
-using Cap.Haptics.PatternTypes;
+using CapHaptics.Client;
+using CapHaptics.PatternTypes;
 using NUnit.Framework;
 
-namespace Cap.Haptics.Tests
+namespace CapHaptics.Tests
 {
 	/// <summary>
 	/// The §8 drift guard, tested with manufactured drift: the validator must catch every

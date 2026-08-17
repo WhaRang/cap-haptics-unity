@@ -1,6 +1,6 @@
-using Cap.Haptics.Client;
+using CapHaptics.Client;
 
-namespace Cap.Haptics.PatternTypes
+namespace CapHaptics.PatternTypes
 {
 	/// <summary>
 	/// Composition primitives behind the native T3 tier. The names come from Android's

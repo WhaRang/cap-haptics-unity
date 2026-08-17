@@ -2,12 +2,12 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
-using Cap.Haptics.PatternTypes;
+using CapHaptics.PatternTypes;
 using UnityEditor;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
-namespace Cap.Haptics.Editor
+namespace CapHaptics.Editor
 {
 	/// <summary>
 	/// Inspector for <see cref="HapticPatternAsset"/> with the M3 tuning loop: preview the

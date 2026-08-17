@@ -1,4 +1,4 @@
-namespace Cap.Haptics.PatternTypes
+namespace CapHaptics.PatternTypes
 {
 	/// <summary>
 	/// The four platform-tuned effects behind the native T2 tier — rendered through

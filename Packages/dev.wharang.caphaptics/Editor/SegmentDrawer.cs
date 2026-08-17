@@ -1,8 +1,8 @@
-using Cap.Haptics.PatternTypes;
+using CapHaptics.PatternTypes;
 using UnityEditor;
 using UnityEngine;
 
-namespace Cap.Haptics.Editor
+namespace CapHaptics.Editor
 {
 	/// <summary>
 	/// Draws a waveform <see cref="HapticPatternAsset.Segment"/> as only the fields its type

@@ -1,5 +1,5 @@
-using Cap.Haptics;
-using Cap.Haptics.Client;
+using CapHaptics;
+using CapHaptics.Client;
 using UnityEngine;
 
 namespace _Main.Scripts

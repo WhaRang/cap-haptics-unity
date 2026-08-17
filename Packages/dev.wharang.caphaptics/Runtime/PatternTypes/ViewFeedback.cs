@@ -1,6 +1,6 @@
-using Cap.Haptics.Client;
+using CapHaptics.Client;
 
-namespace Cap.Haptics.PatternTypes
+namespace CapHaptics.PatternTypes
 {
 	/// <summary>
 	/// The platform's UI-gesture haptics — the one channel that obeys the user's haptic

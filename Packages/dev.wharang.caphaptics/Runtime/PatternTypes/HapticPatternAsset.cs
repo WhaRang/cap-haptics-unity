@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Cap.Haptics.PatternTypes
+namespace CapHaptics.PatternTypes
 {
 	/// <summary>
 	/// A designer-authored haptic pattern (M3). The built-in <see cref="HapticPattern"/>

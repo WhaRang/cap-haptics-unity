@@ -23,7 +23,7 @@ Editor and on non-Android platforms every call is a log-only no-op, and nothing 
    ```
 4. **Initialize once, then play:**
    ```csharp
-   using Cap.Haptics;
+   using CapHaptics;
 
    Haptics.Initialize();                                  // once, at startup
    Haptics.Play(HapticPattern.Success);                   // meaning in, buzz out

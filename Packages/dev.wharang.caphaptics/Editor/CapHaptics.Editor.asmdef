@@ -1,6 +1,6 @@
 {
     "name": "CapHaptics.Editor",
-    "rootNamespace": "Cap.Haptics.Editor",
+    "rootNamespace": "CapHaptics.Editor",
     "references": [
         "CapHaptics.Runtime"
     ],

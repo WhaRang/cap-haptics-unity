@@ -1,9 +1,9 @@
 using System;
-using Cap.Haptics.Backend;
-using Cap.Haptics.PatternTypes;
+using CapHaptics.Backend;
+using CapHaptics.PatternTypes;
 using UnityEngine;
 
-namespace Cap.Haptics.Client
+namespace CapHaptics.Client
 {
 	/// <summary>
 	/// L0 — the public API. A plain static service with no MonoBehaviour, scene or DI

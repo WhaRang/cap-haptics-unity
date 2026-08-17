@@ -1,7 +1,7 @@
 using System;
-using Cap.Haptics.Client;
+using CapHaptics.Client;
 
-namespace Cap.Haptics.Backend
+namespace CapHaptics.Backend
 {
 	/// <summary>
 	/// L1 — the platform seam. <see cref="Haptics"/> picks exactly one implementation at

@@ -15,8 +15,13 @@ All notable changes to this package are documented here. The format follows
 ### Changed
 - **Package renamed** `com.cap.haptics` → `dev.wharang.caphaptics` (displayName
   "Cap Haptics") for Asset Store UPM publishing under the verified `dev.wharang`
-  namespace. **Breaking for early adopters:** update the folder name / `manifest.json`
-  reference; C# namespaces (`Cap.Haptics.*`) and the native ABI are unchanged.
+  namespace, and the **C# root namespace renamed** `Cap.Haptics.*` → `CapHaptics.*`
+  to match the asmdef names — which also removes the trap where the bare name
+  `Haptics` resolved to the `Cap.Haptics` namespace instead of the facade class.
+  **Breaking for early adopters:** update the folder name / `manifest.json` reference
+  and `using` directives (`Cap.Haptics.Client` → `CapHaptics.Client`, etc.). Serialized
+  `HapticPatternAsset`s survive unchanged (GUID-bound, no SerializeReference); the
+  native ABI is untouched.
 - Enum XML docs rewritten platform-neutrally: the C# enums are the canonical wire
   vocabulary (not "mirrors of Kotlin"), with each platform's actual rendering stated —
   including that `ViewFeedback` is an Android-only channel.

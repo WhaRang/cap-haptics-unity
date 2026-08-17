@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
-using Cap.Haptics.Client;
+using CapHaptics.Client;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace Cap.Haptics.Tests
+namespace CapHaptics.Tests
 {
 	/// <summary>
 	/// The injectable log adaptor: an injected logger receives what the SDK would have

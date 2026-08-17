@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Cap.Haptics.Client
+namespace CapHaptics.Client
 {
 	public enum HapticsLogLevel
 	{

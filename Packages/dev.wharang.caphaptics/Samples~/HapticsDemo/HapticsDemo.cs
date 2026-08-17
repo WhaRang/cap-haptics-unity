@@ -1,7 +1,7 @@
-using Cap.Haptics.Client;
+using CapHaptics.Client;
 using UnityEngine;
 
-namespace Cap.Haptics.Samples
+namespace CapHaptics.Samples
 {
 	/// <summary>
 	/// The whole SDK in one file: initialize once at startup, attach the debug panel.

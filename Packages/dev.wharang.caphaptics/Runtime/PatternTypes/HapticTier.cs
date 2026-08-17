@@ -1,4 +1,4 @@
-namespace Cap.Haptics
+namespace CapHaptics
 {
 	/// <summary>
 	/// The playback strategy the native SDK selected. Mirrors the Kotlin <c>HapticTier</c>
