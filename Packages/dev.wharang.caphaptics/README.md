@@ -1,4 +1,4 @@
-# com.cap.haptics
+# Cap Haptics (`dev.wharang.caphaptics`)
 
 Semantic haptics for Android and iOS from Unity. Ask for a **meaning** — `Success`,
 `ImpactHeavy`, `Selection` — and the native SDK renders it through the best haptics API the
@@ -10,7 +10,7 @@ the Editor and on other platforms every call is a log-only no-op, and nothing ev
 1. **Get the package.** Copy this folder into your project's `Packages/` (embedded), or
    reference it from `Packages/manifest.json`:
    ```json
-   "com.cap.haptics": "file:../relative/path/to/com.cap.haptics"
+   "dev.wharang.caphaptics": "file:../relative/path/to/dev.wharang.caphaptics"
    ```
    The two native AARs ship inside the package — nothing else to install.
 2. **Android:** set Minimum API Level to 26 (Player Settings → Other Settings). The `VIBRATE`

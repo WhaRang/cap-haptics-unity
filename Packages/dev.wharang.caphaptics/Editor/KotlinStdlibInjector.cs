@@ -37,7 +37,7 @@ namespace Cap.Haptics.Editor
 		private const string DependencyNeedle = "org.jetbrains.kotlin:kotlin-stdlib";
 
 		private static readonly string DependencyLine =
-			$"    implementation 'org.jetbrains.kotlin:kotlin-stdlib:{KotlinStdlibVersion}' // injected by com.cap.haptics";
+			$"    implementation 'org.jetbrains.kotlin:kotlin-stdlib:{KotlinStdlibVersion}' // injected by dev.wharang.caphaptics";
 
 		public int callbackOrder => 0;
 

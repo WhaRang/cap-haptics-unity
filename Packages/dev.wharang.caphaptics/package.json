@@ -1,14 +1,16 @@
 {
-  "name": "com.cap.haptics",
+  "name": "dev.wharang.caphaptics",
   "version": "0.10.0",
-  "displayName": "cap-haptics",
-  "description": "Semantic haptics for Android. Ask for a meaning — Success, ImpactHeavy, Selection — and the native SDK renders it through the best tier the device actually supports, degrading gracefully on weaker hardware.",
+  "displayName": "Cap Haptics",
+  "description": "Semantic haptics for Android and iOS. Ask for a meaning — Success, ImpactHeavy, Selection — and the native SDK renders it through the best tier the device actually supports, degrading gracefully on weaker hardware.",
   "unity": "6000.3",
   "license": "MIT",
   "keywords": [
     "haptics",
     "vibration",
     "android",
+    "ios",
+    "mobile",
     "feedback"
   ],
   "samples": [

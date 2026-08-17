@@ -1,7 +1,7 @@
 {
   "dependencies": {
-    "com.cap.haptics": {
-      "version": "file:com.cap.haptics",
+    "dev.wharang.caphaptics": {
+      "version": "file:dev.wharang.caphaptics",
       "depth": 0,
       "source": "embedded",
       "dependencies": {}

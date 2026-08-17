@@ -39,19 +39,28 @@ manifest, `InternalsVisibleTo` from Runtime) — capabilities JSON (full blob, s
 empty/garbage → null, missing-field defaults), EnumManifestValidator (agreement,
 Kotlin-naming normalization, id/name drift, missing section, appended-entry tolerance,
 multi-problem reporting), and the overlay's pulse-train builder (extracted to an internal
-static for testability). **M2 done when** the suite is green in the Editor test runner.
-**Open:** M4 (device matrix), M6 (Asset Store). **Workspace note:** repos moved to
+static for testability). **M2 ✅ closed 2026-08-17**: suite green in the Editor test
+runner — 16/16 (8 EnumManifestValidator, 5 HapticCapabilities, 3 PulseTrain) via a
+headless `-runTests -testPlatform EditMode` run. **M4 deferred by decision (2026-08-17)**:
+shipping without the device-matrix run for now — consequence: the listing/FAQ must say
+low-end Android tier selection is verified by forced-tier + JVM tests, not on hardware.
+**M6 format decision made (2026-08-17): UPM delivery**, not `.unitypackage` — see §10 M6.
+Package metadata refreshed for iOS (description/keywords in `package.json`).
+**Open:** M6 (Asset Store). **Workspace note:** repos moved to
 `~/dev/Alex/` (2026-08-10) — iCloud sync of `~/Documents` was corrupting Unity builds with
 "name 2" file duplicates; never keep Unity projects in synced folders.
 
-**Versions:** UPM package **0.9.0** · bridge ABI **v2** · AAR modules compileSdk 36 (the
-Unity-AGP ceiling, §2) · kotlin-stdlib **2.2.10** injected by `Editor/KotlinStdlibInjector.cs`
-· Unity **6000.3.9f1** · test device Samsung S26 Ultra (API 36, full T3).
+**Versions:** UPM package **0.10.0** · bridge ABI **v2** (shared constant — Android AAR
+`BridgeVersion.CURRENT` and iOS `BridgeVersion.current` both checked against
+`Haptics.ExpectedBridgeVersion` at init) · AAR modules compileSdk 36 (the Unity-AGP
+ceiling, §2) · kotlin-stdlib **2.2.10** injected by `Editor/KotlinStdlibInjector.cs`
+· Unity **6000.3.9f1** · test devices Samsung S26 Ultra (API 36, full T3) + iPhone (M5).
 
-**Unity package layout** (a post-U5 reorg — supersedes the sketch in §6):
+**Unity package layout** (a post-U5 reorg — supersedes the sketch in §6; renamed from
+`com.cap.haptics` on 2026-08-17 — see the namespace note below):
 
 ```
-Packages/com.cap.haptics/
+Packages/dev.wharang.caphaptics/
 ├── Runtime/
 │   ├── Backend/        IHapticBackend (the platform seam) · AndroidHapticBackend
 │   │                   (JNI, compiled UNITY_ANDROID && !UNITY_EDITOR) ·
@@ -68,16 +77,28 @@ Packages/com.cap.haptics/
 │                       logs off by default) · SegmentDrawer
 ├── Plugins/Android/    haptics-core.aar + haptics-unity.aar
 │                       (refreshed by `gradlew installUnityPlugin` in the android repo)
+├── Plugins/iOS/        CapHaptics/ Swift sources (M5 — compiled into the Xcode project
+│                       by Unity; synced from the ios repo's Sources/CapHaptics/)
+├── Tests/Editor/       C# editmode tests (M2): capabilities JSON, EnumManifestValidator,
+│                       overlay pulse-train builder
 └── Samples~/HapticsDemo/
 ```
 
-**Version control:** `cap-haptics-ios/` exists as a fresh git repo (created 2026-08-09,
-`.gitignore` for Xcode/Swift in place, no code yet) — it will host the M5 native plugin,
-with built `.a`/`.xcframework` artifacts copied into the Unity package's plugin folder the
-same way the AARs are. The android and unity repos are **still not under git**; that is M2,
-batched across all three repos. `PLAN.md` at the workspace root is the single source of
-project context — it must travel with the project, and the android repo copy of it happens
-in M2.
+**Namespace (2026-08-17):** Asset Store UPM enrollment granted publisher namespace
+**`dev.wharang`** (domain `wharang.dev` bought at GoDaddy, verified via DNS TXT record).
+The UPM package was renamed `com.cap.haptics` → **`dev.wharang.caphaptics`** (displayName
+"Cap Haptics") — folder `git mv`, `package.json`, manifest `testables`, lock file, injector
+marker comment, root/package/ios READMEs, the android repo's `installUnityPlugin` path and
+the ios repo's `install-unity-plugin.sh`. The **Kotlin/Java namespaces and the JNI bridge
+class (`com.cap.haptics.unity.HapticsBridge`) deliberately keep `com.cap.haptics`** — they
+are compiled into the shipped AARs, invisible to consumers, and renaming them would mean an
+AAR rebuild plus ABI churn for zero user value. Ditto the iOS `os_log` subsystem string.
+
+**Version control:** all three repos live on GitHub (`WhaRang/cap-haptics-android`,
+`-unity`, `-ios`), tagged `v0.10.0`, CI green (M2). The iOS plugin ships as **Swift
+sources** inside the Unity package (not a prebuilt `.a`/`.xcframework` — Unity compiles
+them into the exported Xcode project), synced from the ios repo. `PLAN.md` is versioned
+inside the unity repo and is the single source of project context.
 
 **Machine notes:** §7's `JAVA_HOME`/adb paths describe the original Windows box. iOS work
 needs macOS with Unity 6000.3.9f1 (+ iOS Build Support) and Xcode; none of the Android
@@ -758,8 +779,19 @@ P/Invoke ABI rules, and the I0–I7 phase schedule — is **§11**.*
   LTS or declare Unity 6.x-only. (M1's editor script is the main portability risk surface.)
 - **Review criteria**: zero console errors *and warnings* on fresh import; honest listing —
   Editor is a log-only stub, iOS status stated plainly whichever side of M5 this lands on.
-- **Format decision**: Asset Store Tools `.unitypackage` (the default publisher path) vs UPM
-  delivery. The current package layout supports both; decide at submission time.
+- **Format: decided 2026-08-17 — UPM delivery.** UPM publishing on the Asset Store is now
+  generally available (no longer early-access), and the package is already a clean UPM
+  package (asmdefs, `Samples~`, `Tests/Editor`, per-platform plugin folders) — the
+  `.unitypackage` path would mean restructuring into `Assets/` and giving up the
+  Samples-UI / immutable-package / one-click-update semantics for nothing. Consequences:
+  - Enroll as a UPM publisher on the Publisher Portal (identity verification via Persona;
+    DNS domain verification optional for individuals).
+  - A publisher **namespace** must be claimed, and the package technical name must match
+    it — **verify `com.cap` is claimable before tagging 1.0.0**; if not, the rename to a
+    claimable namespace is a breaking change that must land before first release, never
+    after.
+  - Validate with the Asset Store Publishing Tools in-Editor before upload; buyers install
+    via Package Manager (package stays under `Packages/`, immutable).
 
 **Done when:** the submission is uploaded and review feedback is triaged back into this
 section.
