@@ -2,6 +2,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.Android;
+using Cap.Haptics.Client;
 using HapticResult = Cap.Haptics.Client.HapticResult;
 
 namespace Cap.Haptics.Backend
@@ -38,7 +39,7 @@ namespace Cap.Haptics.Backend
 			}
 			catch (Exception e)
 			{
-				Debug.LogError($"[cap-haptics] getBridgeVersion failed — are both AARs in Plugins/Android? {e.Message}");
+				HapticsLog.Error($"[cap-haptics] getBridgeVersion failed — are both AARs in Plugins/Android? {e.Message}");
 				return -1;
 			}
 		}
@@ -53,7 +54,7 @@ namespace Cap.Haptics.Backend
 
 				var detail = _bridge.Call<string>("getLastError");
 				var nativeInitialized = _bridge.Call<bool>("isInitialized");
-				Debug.LogError(
+				HapticsLog.Error(
 					"[cap-haptics] Native initialize returned false. " +
 					$"nativeInitialized={nativeInitialized} (true = SDK is up but probe found no vibrator), " +
 					$"lastError='{detail}'");
@@ -61,7 +62,7 @@ namespace Cap.Haptics.Backend
 			}
 			catch (Exception e)
 			{
-				Debug.LogError($"[cap-haptics] initialize failed: {e.Message}");
+				HapticsLog.Error($"[cap-haptics] initialize failed: {e.Message}");
 				return false;
 			}
 		}
@@ -74,7 +75,7 @@ namespace Cap.Haptics.Backend
 			}
 			catch (Exception e)
 			{
-				Debug.LogError($"[cap-haptics] getCapabilitiesJson failed: {e.Message}");
+				HapticsLog.Error($"[cap-haptics] getCapabilitiesJson failed: {e.Message}");
 				return "";
 			}
 		}
@@ -87,7 +88,7 @@ namespace Cap.Haptics.Backend
 			}
 			catch (Exception e)
 			{
-				Debug.LogError($"[cap-haptics] getEnumManifestJson failed: {e.Message}");
+				HapticsLog.Error($"[cap-haptics] getEnumManifestJson failed: {e.Message}");
 				return "";
 			}
 		}
@@ -100,7 +101,7 @@ namespace Cap.Haptics.Backend
 			}
 			catch (Exception e)
 			{
-				Debug.LogError($"[cap-haptics] playPattern failed: {e.Message}");
+				HapticsLog.Error($"[cap-haptics] playPattern failed: {e.Message}");
 				return (int)HapticResult.PlatformError;
 			}
 		}
@@ -113,7 +114,7 @@ namespace Cap.Haptics.Backend
 			}
 			catch (Exception e)
 			{
-				Debug.LogError($"[cap-haptics] setForcedTier failed: {e.Message}");
+				HapticsLog.Error($"[cap-haptics] setForcedTier failed: {e.Message}");
 				return (int)HapticTier.None;
 			}
 		}
@@ -126,7 +127,7 @@ namespace Cap.Haptics.Backend
 			}
 			catch (Exception e)
 			{
-				Debug.LogError($"[cap-haptics] playEffect failed: {e.Message}");
+				HapticsLog.Error($"[cap-haptics] playEffect failed: {e.Message}");
 				return (int)HapticResult.PlatformError;
 			}
 		}
@@ -139,7 +140,7 @@ namespace Cap.Haptics.Backend
 			}
 			catch (Exception e)
 			{
-				Debug.LogError($"[cap-haptics] playComposition failed: {e.Message}");
+				HapticsLog.Error($"[cap-haptics] playComposition failed: {e.Message}");
 				return (int)HapticResult.PlatformError;
 			}
 		}
@@ -152,7 +153,7 @@ namespace Cap.Haptics.Backend
 			}
 			catch (Exception e)
 			{
-				Debug.LogError($"[cap-haptics] playWaveform failed: {e.Message}");
+				HapticsLog.Error($"[cap-haptics] playWaveform failed: {e.Message}");
 				return (int)HapticResult.PlatformError;
 			}
 		}
@@ -165,7 +166,7 @@ namespace Cap.Haptics.Backend
 			}
 			catch (Exception e)
 			{
-				Debug.LogError($"[cap-haptics] cancel failed: {e.Message}");
+				HapticsLog.Error($"[cap-haptics] cancel failed: {e.Message}");
 			}
 		}
 

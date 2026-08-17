@@ -3,6 +3,24 @@
 All notable changes to this package are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com); versions follow [semver](https://semver.org).
 
+## [0.11.0] - 2026-08-17
+
+### Added
+- **Injectable log adaptor.** `Haptics.SetLogger(IHapticsLogger)` routes the C# layer's
+  log lines into your own pipeline (file, analytics, silent sink) instead of the Unity
+  console; null restores the default. A throwing logger is caught and reported — the
+  no-throw guarantee holds. Native-side logging (logcat / os_log, tag `CapHaptics`) is a
+  separate channel and unaffected.
+
+### Changed
+- **Package renamed** `com.cap.haptics` → `dev.wharang.caphaptics` (displayName
+  "Cap Haptics") for Asset Store UPM publishing under the verified `dev.wharang`
+  namespace. **Breaking for early adopters:** update the folder name / `manifest.json`
+  reference; C# namespaces (`Cap.Haptics.*`) and the native ABI are unchanged.
+- Enum XML docs rewritten platform-neutrally: the C# enums are the canonical wire
+  vocabulary (not "mirrors of Kotlin"), with each platform's actual rendering stated —
+  including that `ViewFeedback` is an Android-only channel.
+
 ## [0.10.0] - 2026-08-10
 
 ### Added

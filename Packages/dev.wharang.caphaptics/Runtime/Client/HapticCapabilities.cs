@@ -76,7 +76,7 @@ namespace Cap.Haptics.Client
 			}
 			catch (Exception e)
 			{
-				Debug.LogError($"[cap-haptics] Could not parse capabilities JSON: {e.Message}");
+				HapticsLog.Error($"[cap-haptics] Could not parse capabilities JSON: {e.Message}");
 				return null;
 			}
 		}

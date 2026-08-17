@@ -94,6 +94,14 @@ class (`com.cap.haptics.unity.HapticsBridge`) deliberately keep `com.cap.haptics
 are compiled into the shipped AARs, invisible to consumers, and renaming them would mean an
 AAR rebuild plus ABI churn for zero user value. Ditto the iOS `os_log` subsystem string.
 
+**0.11.0 (2026-08-17):** injectable log adaptor — `Haptics.SetLogger(IHapticsLogger)`
+routes the C# layer's log lines into the consumer's pipeline (a throwing logger is caught,
+so the no-throw guarantee holds; native logcat/os_log untouched; +3 editmode tests) — and
+an enum-doc sweep: the C# enums are documented as the canonical wire vocabulary rather
+than "mirrors of Kotlin", with each platform's real rendering stated (`ViewFeedback` named
+as Android-only). Two feature ideas parked in the backlog: PlayerConnection live device
+preview, in-build runtime pattern editor.
+
 **Version control:** all three repos live on GitHub (`WhaRang/cap-haptics-android`,
 `-unity`, `-ios`), tagged `v0.10.0`, CI green (M2). The iOS plugin ships as **Swift
 sources** inside the Unity package (not a prebuilt `.a`/`.xcframework` — Unity compiles
@@ -798,6 +806,14 @@ section.
 
 ### Backlog (unscheduled)
 
+- **PlayerConnection live device preview** (v1.1 candidate): an "audition on connected
+  device" button in `HapticPatternAssetEditor`, sending the asset over Unity's
+  PlayerConnection (USB-capable on iOS — the adb-preview equivalent the iPhone lacks) to a
+  small runtime listener in a dev build, playing through the real SDK tiers on both
+  platforms.
+- **In-build runtime pattern editor**: designers author haptics inside a dev build and
+  export back as `HapticPatternAsset` JSON. The market-strong big sibling of the
+  PlayerConnection preview — revisit only if the preview proves insufficient.
 - Global intensity / mute setting (persisted, applied inside the library like §3.3's
   `intensityScale` so semantics stay per-tier consistent).
 - Per-pattern cooldowns — games spam haptics; the SDK should defend the motor.

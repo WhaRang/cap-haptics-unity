@@ -1,6 +1,5 @@
 using Cap.Haptics.Client;
 using Cap.Haptics.PatternTypes;
-using UnityEngine;
 
 namespace Cap.Haptics.Backend
 {
@@ -23,7 +22,7 @@ namespace Cap.Haptics.Backend
 		{
 			_verbose = verboseLogging;
 			if (_verbose)
-				Debug.Log("[cap-haptics] Editor stub active — calls are logged, nothing vibrates.");
+				HapticsLog.Info("[cap-haptics] Editor stub active — calls are logged, nothing vibrates.");
 			return true;
 		}
 
@@ -61,28 +60,28 @@ namespace Cap.Haptics.Backend
 		public int PlayPattern(int patternId, float intensity)
 		{
 			if (_verbose)
-				Debug.Log($"[cap-haptics] Editor stub: PlayPattern({(HapticPattern)patternId}, {intensity:0.00})");
+				HapticsLog.Info($"[cap-haptics] Editor stub: PlayPattern({(HapticPattern)patternId}, {intensity:0.00})");
 			return (int)HapticResult.Ok;
 		}
 
 		public int SetForcedTier(int tierLevel)
 		{
 			if (_verbose)
-				Debug.Log($"[cap-haptics] Editor stub: SetForcedTier({tierLevel}) — no tiers here, staying None");
+				HapticsLog.Info($"[cap-haptics] Editor stub: SetForcedTier({tierLevel}) — no tiers here, staying None");
 			return (int)HapticTier.None;
 		}
 
 		public int PlayEffect(int effectId)
 		{
 			if (_verbose)
-				Debug.Log($"[cap-haptics] Editor stub: PlayEffect({(PredefinedEffect)effectId})");
+				HapticsLog.Info($"[cap-haptics] Editor stub: PlayEffect({(PredefinedEffect)effectId})");
 			return (int)HapticResult.Ok;
 		}
 
 		public int PlayComposition(int[] primitiveIds, float[] scales, int[] delaysMs)
 		{
 			if (_verbose)
-				Debug.Log($"[cap-haptics] Editor stub: PlayComposition([{string.Join(",", primitiveIds)}], " +
+				HapticsLog.Info($"[cap-haptics] Editor stub: PlayComposition([{string.Join(",", primitiveIds)}], " +
 					$"[{string.Join(",", scales)}], [{string.Join(",", delaysMs)}])");
 			return (int)HapticResult.Ok;
 		}
@@ -90,7 +89,7 @@ namespace Cap.Haptics.Backend
 		public int PlayWaveform(long[] timingsMs, int[] amplitudes, int repeatIndex)
 		{
 			if (_verbose)
-				Debug.Log($"[cap-haptics] Editor stub: PlayWaveform([{string.Join(",", timingsMs)}], " +
+				HapticsLog.Info($"[cap-haptics] Editor stub: PlayWaveform([{string.Join(",", timingsMs)}], " +
 					$"[{string.Join(",", amplitudes)}], repeat={repeatIndex})");
 			return (int)HapticResult.Ok;
 		}
@@ -98,7 +97,7 @@ namespace Cap.Haptics.Backend
 		public void Cancel()
 		{
 			if (_verbose)
-				Debug.Log("[cap-haptics] Editor stub: Cancel()");
+				HapticsLog.Info("[cap-haptics] Editor stub: Cancel()");
 		}
 
 		public void Dispose()

@@ -47,6 +47,28 @@ sliders and sends them through `Haptics.PlayWaveform`.
 Or import the *Haptics Demo* sample from the Package Manager window, which does both calls
 for you.
 
+## Routing the SDK's logs
+
+By default the C# layer writes to the Unity console. To send its lines through your own
+pipeline instead — a file, an analytics backend, or a silent sink:
+
+```csharp
+using Cap.Haptics.Client;
+
+sealed class MyLogger : IHapticsLogger
+{
+    public void Log(HapticsLogLevel level, string message) => MyPipeline.Write(level, message);
+}
+
+Haptics.SetLogger(new MyLogger());   // before Initialize() to capture init logging too
+Haptics.SetLogger(null);             // restores the default console logger
+```
+
+A logger that throws cannot break the SDK's no-throw guarantee — the exception is caught
+and reported to the console together with the original line. Native-side logging
+(`adb logcat -s CapHaptics:V` on Android, `os_log` on iOS) is a separate channel and is
+unaffected.
+
 ## Authoring your own patterns
 
 **Create → cap-haptics → Haptic Pattern** makes a `HapticPatternAsset`. One asset is one

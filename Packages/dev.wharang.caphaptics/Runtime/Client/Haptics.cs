@@ -45,6 +45,15 @@ namespace Cap.Haptics.Client
 		public static HapticTier ActiveTier { get; private set; } = HapticTier.None;
 
 		/// <summary>
+		/// Routes the SDK's C# log lines somewhere other than the Unity console — your own
+		/// pipeline, a file, an analytics backend, or a silent sink. Pass null to restore
+		/// the default <see cref="Debug"/> logger. Takes effect immediately; call before
+		/// <see cref="Initialize"/> to capture init logging too. Native-side logging
+		/// (logcat / os_log, tag <c>CapHaptics</c>) is a separate channel and stays put.
+		/// </summary>
+		public static void SetLogger(IHapticsLogger? logger) => HapticsLog.Set(logger);
+
+		/// <summary>
 		/// Idempotent; call once at startup. Returns false — after logging exactly why —
 		/// rather than throwing, and every later call no-ops safely when init failed.
 		/// </summary>
@@ -67,7 +76,7 @@ namespace Cap.Haptics.Client
 				BridgeVersion = _backend.GetBridgeVersion();
 				if (BridgeVersion != ExpectedBridgeVersion)
 				{
-					Debug.LogError(
+					HapticsLog.Error(
 						$"[cap-haptics] Bridge version mismatch: C# expects {ExpectedBridgeVersion}, " +
 						$"packaged AAR reports {BridgeVersion}. Rebuild and reinstall the AARs " +
 						"(gradlew installUnityPlugin) or update the C# package.");
@@ -77,7 +86,7 @@ namespace Cap.Haptics.Client
 
 				if (!_backend.Initialize(verboseLogging))
 				{
-					Debug.LogError("[cap-haptics] Native initialization failed.");
+					HapticsLog.Error("[cap-haptics] Native initialization failed.");
 					DisposeBackend();
 					return false;
 				}
@@ -85,7 +94,7 @@ namespace Cap.Haptics.Client
 				var manifestProblems = EnumManifestValidator.Validate(_backend.GetEnumManifestJson());
 				if (manifestProblems != null)
 				{
-					Debug.LogError(
+					HapticsLog.Error(
 						"[cap-haptics] Enum manifest mismatch — the C# enums and the packaged " +
 						$"AAR disagree; refusing to initialize:\n{manifestProblems}");
 					DisposeBackend();
@@ -94,18 +103,18 @@ namespace Cap.Haptics.Client
 
 				Capabilities = HapticCapabilities.FromJson(_backend.GetCapabilitiesJson());
 				if (Capabilities == null)
-					Debug.LogWarning("[cap-haptics] Capabilities unavailable — diagnostics will be empty.");
+					HapticsLog.Warning("[cap-haptics] Capabilities unavailable — diagnostics will be empty.");
 				ActiveTier = Capabilities?.ActiveTier ?? HapticTier.None;
 
 				IsInitialized = true;
-				Debug.Log($"[cap-haptics] Initialized, bridge version {BridgeVersion}, " +
+				HapticsLog.Info($"[cap-haptics] Initialized, bridge version {BridgeVersion}, " +
 					$"device tier {Capabilities?.DeviceTier.ToString() ?? "?"}, " +
 					$"active tier {Capabilities?.ActiveTier.ToString() ?? "?"}.");
 				return true;
 			}
 			catch (Exception e)
 			{
-				Debug.LogError($"[cap-haptics] Initialize failed: {e.Message}");
+				HapticsLog.Error($"[cap-haptics] Initialize failed: {e.Message}");
 				DisposeBackend();
 				return false;
 			}

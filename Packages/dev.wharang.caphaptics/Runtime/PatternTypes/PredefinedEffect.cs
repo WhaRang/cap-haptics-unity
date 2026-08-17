@@ -1,9 +1,10 @@
 namespace Cap.Haptics.PatternTypes
 {
 	/// <summary>
-	/// The four platform-tuned effects behind the native T2 tier. Mirrors the Kotlin
-	/// <c>PredefinedEffect</c>; values are the wire ids, validated against the AAR's enum
-	/// manifest at init.
+	/// The four platform-tuned effects behind the native T2 tier — rendered through
+	/// <c>VibrationEffect.createPredefined</c> on Android and the closest
+	/// <c>UIFeedbackGenerator</c> feedback on iOS. Values are the wire ids, validated
+	/// against the AAR's enum manifest at init.
 	/// </summary>
 	public enum PredefinedEffect
 	{
