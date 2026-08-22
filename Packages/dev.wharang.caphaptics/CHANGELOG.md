@@ -12,7 +12,7 @@ All notable changes to this package are documented here. The format follows
   instantly. Not persisted by design — wire it to your settings system. `Cancel()` stays
   functional while disabled. Requires AARs rebuilt from android repo ≥ this version
   (enum manifest agreement).
-- **Injectable log adaptor.** `Haptics.SetLogger(IHapticsLogger)` routes the C# layer's
+- **Injectable log adaptor.** `Haptics.SetLogger(IHapticLogger)` routes the C# layer's
   log lines into your own pipeline (file, analytics, silent sink) instead of the Unity
   console; null restores the default. A throwing logger is caught and reported — the
   no-throw guarantee holds. Native-side logging (logcat / os_log, tag `CapHaptics`) is a
@@ -28,6 +28,10 @@ All notable changes to this package are documented here. The format follows
   and `using` directives (`Cap.Haptics.Client` → `CapHaptics.Client`, etc.). Serialized
   `HapticPatternAsset`s survive unchanged (GUID-bound, no SerializeReference); the
   native ABI is untouched.
+- Type names normalized to the singular `Haptic` prefix — `HapticsDiagnosticsOverlay` →
+  `HapticDiagnosticsOverlay`, `IHapticsLogger` → `IHapticLogger`, `HapticsLogLevel` →
+  `HapticLogLevel` — matching `HapticPattern`, `HapticResult` and friends. `Haptics`
+  survives only as the facade class itself.
 - Enum XML docs rewritten platform-neutrally: the C# enums are the canonical wire
   vocabulary (not "mirrors of Kotlin"), with each platform's actual rendering stated —
   including that `ViewFeedback` is an Android-only channel.

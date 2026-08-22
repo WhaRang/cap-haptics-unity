@@ -22,7 +22,7 @@ namespace CapHaptics.Backend
 		{
 			_verbose = verboseLogging;
 			if (_verbose)
-				HapticsLog.Info("[cap-haptics] Editor stub active — calls are logged, nothing vibrates.");
+				HapticLog.Info("[cap-haptics] Editor stub active — calls are logged, nothing vibrates.");
 			return true;
 		}
 
@@ -60,28 +60,28 @@ namespace CapHaptics.Backend
 		public int PlayPattern(int patternId, float intensity)
 		{
 			if (_verbose)
-				HapticsLog.Info($"[cap-haptics] Editor stub: PlayPattern({(HapticPattern)patternId}, {intensity:0.00})");
+				HapticLog.Info($"[cap-haptics] Editor stub: PlayPattern({(HapticPattern)patternId}, {intensity:0.00})");
 			return (int)HapticResult.Ok;
 		}
 
 		public int SetForcedTier(int tierLevel)
 		{
 			if (_verbose)
-				HapticsLog.Info($"[cap-haptics] Editor stub: SetForcedTier({tierLevel}) — no tiers here, staying None");
+				HapticLog.Info($"[cap-haptics] Editor stub: SetForcedTier({tierLevel}) — no tiers here, staying None");
 			return (int)HapticTier.None;
 		}
 
 		public int PlayEffect(int effectId)
 		{
 			if (_verbose)
-				HapticsLog.Info($"[cap-haptics] Editor stub: PlayEffect({(PredefinedEffect)effectId})");
+				HapticLog.Info($"[cap-haptics] Editor stub: PlayEffect({(PredefinedEffect)effectId})");
 			return (int)HapticResult.Ok;
 		}
 
 		public int PlayComposition(int[] primitiveIds, float[] scales, int[] delaysMs)
 		{
 			if (_verbose)
-				HapticsLog.Info($"[cap-haptics] Editor stub: PlayComposition([{string.Join(",", primitiveIds)}], " +
+				HapticLog.Info($"[cap-haptics] Editor stub: PlayComposition([{string.Join(",", primitiveIds)}], " +
 					$"[{string.Join(",", scales)}], [{string.Join(",", delaysMs)}])");
 			return (int)HapticResult.Ok;
 		}
@@ -89,7 +89,7 @@ namespace CapHaptics.Backend
 		public int PlayWaveform(long[] timingsMs, int[] amplitudes, int repeatIndex)
 		{
 			if (_verbose)
-				HapticsLog.Info($"[cap-haptics] Editor stub: PlayWaveform([{string.Join(",", timingsMs)}], " +
+				HapticLog.Info($"[cap-haptics] Editor stub: PlayWaveform([{string.Join(",", timingsMs)}], " +
 					$"[{string.Join(",", amplitudes)}], repeat={repeatIndex})");
 			return (int)HapticResult.Ok;
 		}
@@ -97,7 +97,7 @@ namespace CapHaptics.Backend
 		public void Cancel()
 		{
 			if (_verbose)
-				HapticsLog.Info("[cap-haptics] Editor stub: Cancel()");
+				HapticLog.Info("[cap-haptics] Editor stub: Cancel()");
 		}
 
 		public void Dispose()

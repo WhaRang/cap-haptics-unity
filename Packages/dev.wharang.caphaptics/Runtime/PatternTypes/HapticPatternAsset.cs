@@ -50,13 +50,13 @@ namespace CapHaptics.PatternTypes
 			[Min(0)] public int durationMs;
 
 			[Tooltip("Buzz only: constant motor strength. 0 = silence.")]
-			[Range(0, 255)] public int amplitude;
+			[Range(0, MaxAmplitude)] public int amplitude;
 
 			[Tooltip("Curve only: the strength envelope over this segment. x = normalized time, y = strength 0..1.")]
 			public AnimationCurve envelope;
 
 			[Tooltip("Curve only: how many points the curve is sampled at. More probes = smoother, but most motors cannot articulate much below 10 ms per probe.")]
-			[Range(2, 64)] public int probes;
+			[Range(MinProbes, MaxProbes)] public int probes;
 		}
 
 		[Serializable]
@@ -74,6 +74,22 @@ namespace CapHaptics.PatternTypes
 		/// <summary>Native `Waveform.MAX_STEPS` is 500; building stays under it with margin.</summary>
 		public const int MaxSteps = 450;
 
+		/// <summary>The motor strength scale (`VibrationEffect` convention): 0 = silence, 255 = full.</summary>
+		public const int MaxAmplitude = 255;
+
+		/// <summary>Below this a scaled step would round to silence; audible steps never do.</summary>
+		private const int MinAudibleAmplitude = 1;
+
+		private const int MinProbes = 2;
+		private const int MaxProbes = 64;
+		private const int DefaultProbes = 20;
+
+		private const int DefaultSegmentDurationMs = 400;
+		private const int DefaultAmplitude = 200;
+
+		/// <summary>Where the default envelope peaks: a quick rise, then a long decay.</summary>
+		private const float DefaultEnvelopePeakTime = 0.12f;
+
 		[SerializeField] private PatternMode mode = PatternMode.Waveform;
 
 		[SerializeField]
@@ -82,10 +98,10 @@ namespace CapHaptics.PatternTypes
 			new Segment
 			{
 				type = SegmentType.Curve,
-				durationMs = 400,
-				amplitude = 200,
+				durationMs = DefaultSegmentDurationMs,
+				amplitude = DefaultAmplitude,
 				envelope = DefaultEnvelope(),
-				probes = 20,
+				probes = DefaultProbes,
 			},
 		};
 
@@ -133,7 +149,7 @@ namespace CapHaptics.PatternTypes
 			var requested = 0;
 			foreach (var segment in segments)
 				requested += (segment.delayMs > 0 ? 1 : 0)
-					+ (segment.type == SegmentType.Curve ? Mathf.Max(2, segment.probes) : 1);
+					+ (segment.type == SegmentType.Curve ? Mathf.Max(MinProbes, segment.probes) : 1);
 			var coarsen = requested > MaxSteps ? MaxSteps / (float)requested : 1f;
 
 			var steps = new List<Segment>(Mathf.Min(requested, MaxSteps));
@@ -152,14 +168,14 @@ namespace CapHaptics.PatternTypes
 				}
 
 				var envelope = segment.envelope ?? DefaultEnvelope();
-				var probes = Mathf.Max(2, Mathf.FloorToInt(Mathf.Max(2, segment.probes) * coarsen));
+				var probes = Mathf.Max(MinProbes, Mathf.FloorToInt(Mathf.Max(MinProbes, segment.probes) * coarsen));
 				var probeMs = segment.durationMs / (float)probes;
 				for (var i = 0; i < probes; i++)
 				{
 					// Midpoint sampling: a probe represents its middle, not its leading edge.
 					var t = (i + 0.5f) / probes;
 					var amplitude = Mathf.Clamp(
-						Mathf.RoundToInt(Mathf.Clamp01(envelope.Evaluate(t)) * 255f), 0, 255);
+						Mathf.RoundToInt(Mathf.Clamp01(envelope.Evaluate(t)) * MaxAmplitude), 0, MaxAmplitude);
 					var duration = Mathf.RoundToInt((i + 1) * probeMs) - Mathf.RoundToInt(i * probeMs);
 					if (duration > 0)
 						Append(steps, duration, amplitude);
@@ -174,7 +190,7 @@ namespace CapHaptics.PatternTypes
 				var amplitude = steps[i].amplitude;
 				amplitudes[i] = amplitude == 0
 					? 0
-					: Mathf.Clamp(Mathf.RoundToInt(amplitude * clamped), 1, 255);
+					: Mathf.Clamp(Mathf.RoundToInt(amplitude * clamped), MinAudibleAmplitude, MaxAmplitude);
 			}
 		}
 
@@ -193,7 +209,7 @@ namespace CapHaptics.PatternTypes
 
 		private static AnimationCurve DefaultEnvelope() => new(
 			new Keyframe(0f, 0f),
-			new Keyframe(0.12f, 1f),
+			new Keyframe(DefaultEnvelopePeakTime, 1f),
 			new Keyframe(1f, 0f));
 
 		private void OnValidate()
@@ -205,10 +221,13 @@ namespace CapHaptics.PatternTypes
 				var segment = segments[i];
 				segment.delayMs = Mathf.Max(0, segment.delayMs);
 				segment.durationMs = Mathf.Max(0, segment.durationMs);
-				segment.amplitude = Mathf.Clamp(segment.amplitude, 0, 255);
-				segment.probes = Mathf.Clamp(segment.probes < 2 ? 20 : segment.probes, 2, 64);
+				segment.amplitude = Mathf.Clamp(segment.amplitude, 0, MaxAmplitude);
+				segment.probes = Mathf.Clamp(
+					segment.probes < MinProbes ? DefaultProbes : segment.probes, MinProbes, MaxProbes);
+				
 				if (segment.envelope == null || segment.envelope.length == 0)
 					segment.envelope = DefaultEnvelope();
+				
 				segments[i] = segment;
 			}
 

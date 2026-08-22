@@ -17,7 +17,7 @@
     {
       "displayName": "Haptics Demo",
       "description": "One-file bootstrap: initializes the SDK and attaches the three-tab debug panel (capabilities, pattern grid with tier override, waveform playground).",
-      "path": "Samples~/HapticsDemo"
+      "path": "Samples~/HapticDemo"
     }
   ]
 }

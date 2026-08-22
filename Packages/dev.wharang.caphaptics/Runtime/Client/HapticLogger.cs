@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace CapHaptics.Client
 {
-	public enum HapticsLogLevel
+	public enum HapticLogLevel
 	{
 		Info = 0,
 		Warning = 1,
@@ -15,40 +15,40 @@ namespace CapHaptics.Client
 	/// <see cref="Haptics.SetLogger"/> to route them into your own pipeline — a file,
 	/// an analytics backend, or a silent sink — instead of the Unity console.
 	/// </summary>
-	public interface IHapticsLogger
+	public interface IHapticLogger
 	{
-		void Log(HapticsLogLevel level, string message);
+		void Log(HapticLogLevel level, string message);
 	}
 
 	/// <summary>
 	/// The dispatcher every SDK log line goes through, so the no-throw guarantee holds
 	/// even when the injected logger is the thing that throws.
 	/// </summary>
-	internal static class HapticsLog
+	internal static class HapticLog
 	{
-		private sealed class UnityLogger : IHapticsLogger
+		private sealed class UnityLogger : IHapticLogger
 		{
-			public void Log(HapticsLogLevel level, string message)
+			public void Log(HapticLogLevel level, string message)
 			{
 				switch (level)
 				{
-					case HapticsLogLevel.Error: Debug.LogError(message); break;
-					case HapticsLogLevel.Warning: Debug.LogWarning(message); break;
+					case HapticLogLevel.Error: Debug.LogError(message); break;
+					case HapticLogLevel.Warning: Debug.LogWarning(message); break;
 					default: Debug.Log(message); break;
 				}
 			}
 		}
 
-		private static readonly IHapticsLogger Default = new UnityLogger();
-		private static IHapticsLogger _current = Default;
+		private static readonly IHapticLogger Default = new UnityLogger();
+		private static IHapticLogger _current = Default;
 
-		internal static void Set(IHapticsLogger? logger) => _current = logger ?? Default;
+		internal static void Set(IHapticLogger? logger) => _current = logger ?? Default;
 
-		internal static void Info(string message) => Write(HapticsLogLevel.Info, message);
-		internal static void Warning(string message) => Write(HapticsLogLevel.Warning, message);
-		internal static void Error(string message) => Write(HapticsLogLevel.Error, message);
+		internal static void Info(string message) => Write(HapticLogLevel.Info, message);
+		internal static void Warning(string message) => Write(HapticLogLevel.Warning, message);
+		internal static void Error(string message) => Write(HapticLogLevel.Error, message);
 
-		private static void Write(HapticsLogLevel level, string message)
+		private static void Write(HapticLogLevel level, string message)
 		{
 			try
 			{

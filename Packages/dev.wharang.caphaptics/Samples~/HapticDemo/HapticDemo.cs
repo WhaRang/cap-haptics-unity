@@ -15,7 +15,7 @@ namespace CapHaptics.Samples
 	/// Haptics.Play(HapticPattern.ImpactLight, intensity: 0.6f);
 	/// </code>
 	/// </summary>
-	public static class HapticsDemo
+	public static class HapticDemo
 	{
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
 		private static void Boot()
@@ -28,7 +28,7 @@ namespace CapHaptics.Samples
 				return;
 			}
 
-			HapticsDiagnosticsOverlay.Attach();
+			HapticDiagnosticsOverlay.Attach();
 		}
 	}
 }

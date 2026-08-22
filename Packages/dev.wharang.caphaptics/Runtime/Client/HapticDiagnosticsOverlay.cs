@@ -20,7 +20,7 @@ namespace CapHaptics.Client
 	/// Attach with <see cref="Attach"/> after <see cref="Haptics.Initialize"/>, or add the
 	/// component to any GameObject by hand.
 	/// </summary>
-	public sealed class HapticsDiagnosticsOverlay : MonoBehaviour
+	public sealed class HapticDiagnosticsOverlay : MonoBehaviour
 	{
 		private static readonly string[] Tabs = { "Caps", "Patterns", "Playground" };
 
@@ -42,15 +42,15 @@ namespace CapHaptics.Client
 		private float _amplitude = 200f;
 		private bool _repeat;
 
-		public static HapticsDiagnosticsOverlay Attach()
+		public static HapticDiagnosticsOverlay Attach()
 		{
-			var existing = FindAnyObjectByType<HapticsDiagnosticsOverlay>();
+			var existing = FindAnyObjectByType<HapticDiagnosticsOverlay>();
 			if (existing != null)
 				return existing;
 
 			var host = new GameObject("[cap-haptics diagnostics]");
 			DontDestroyOnLoad(host);
-			return host.AddComponent<HapticsDiagnosticsOverlay>();
+			return host.AddComponent<HapticDiagnosticsOverlay>();
 		}
 
 		private void Start()

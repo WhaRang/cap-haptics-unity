@@ -67,7 +67,7 @@ Packages/dev.wharang.caphaptics/
 │   │                   EditorHapticBackend (log-only stub, honest answers)
 │   ├── Client/         Haptics (static facade) · HapticCapabilities ·
 │   │                   EnumManifestValidator · HapticResult · SupportLevel ·
-│   │                   HapticsDiagnosticsOverlay (3-tab debug panel)
+│   │                   HapticDiagnosticsOverlay (3-tab debug panel)
 │   └── PatternTypes/   enum mirrors (HapticPattern/Primitive/PredefinedEffect/
 │                       ViewFeedback; HapticTier still in root namespace) ·
 │                       HapticPatternAsset — mode-based: one asset is ONE rendering
@@ -81,7 +81,7 @@ Packages/dev.wharang.caphaptics/
 │                       by Unity; synced from the ios repo's Sources/CapHaptics/)
 ├── Tests/Editor/       C# editmode tests (M2): capabilities JSON, EnumManifestValidator,
 │                       overlay pulse-train builder
-└── Samples~/HapticsDemo/
+└── Samples~/HapticDemo/
 ```
 
 **Namespace (2026-08-17):** Asset Store UPM enrollment granted publisher namespace
@@ -99,7 +99,7 @@ the new `HapticResult.Disabled` (wire code 7, appended on all three sides — th
 exercise of the append-only ABI rule; **AARs must be rebuilt** via `gradlew
 installUnityPlugin` or Android init fails the manifest check, loudly and by design);
 switching off cancels running playback; not persisted (consumer settings own that).
-Also: injectable log adaptor — `Haptics.SetLogger(IHapticsLogger)`
+Also: injectable log adaptor — `Haptics.SetLogger(IHapticLogger)`
 routes the C# layer's log lines into the consumer's pipeline (a throwing logger is caught,
 so the no-throw guarantee holds; native logcat/os_log untouched; +3 editmode tests) — and
 an enum-doc sweep: the C# enums are documented as the canonical wire vocabulary rather
@@ -538,7 +538,7 @@ Packages/com.cap.haptics/
 ├── Plugins/Android/
 │   ├── haptics-core.aar
 │   └── haptics-unity.aar
-└── Samples~/HapticsDemo/
+└── Samples~/HapticDemo/
 ```
 
 **Arch ECS note:** keep `Haptics` a plain static service with no `MonoBehaviour` or scene

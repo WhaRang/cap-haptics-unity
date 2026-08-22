@@ -12,7 +12,7 @@ namespace CapHaptics.Tests
 		[Test]
 		public void SinglePulseStartsImmediately()
 		{
-			var (timings, amplitudes) = HapticsDiagnosticsOverlay.BuildPulseTrain(
+			var (timings, amplitudes) = HapticDiagnosticsOverlay.BuildPulseTrain(
 				pulses: 1, pulseMs: 60, gapMs: 100, amplitude: 200);
 
 			Assert.That(timings, Is.EqualTo(new long[] { 0, 60 }));
@@ -22,7 +22,7 @@ namespace CapHaptics.Tests
 		[Test]
 		public void MultiplePulsesAlternateGapAndPulse()
 		{
-			var (timings, amplitudes) = HapticsDiagnosticsOverlay.BuildPulseTrain(
+			var (timings, amplitudes) = HapticDiagnosticsOverlay.BuildPulseTrain(
 				pulses: 3, pulseMs: 60, gapMs: 100, amplitude: 255);
 
 			Assert.That(timings, Is.EqualTo(new long[] { 0, 60, 100, 60, 100, 60 }));
@@ -32,7 +32,7 @@ namespace CapHaptics.Tests
 		[Test]
 		public void OffSegmentsAreAlwaysSilent()
 		{
-			var (_, amplitudes) = HapticsDiagnosticsOverlay.BuildPulseTrain(
+			var (_, amplitudes) = HapticDiagnosticsOverlay.BuildPulseTrain(
 				pulses: 8, pulseMs: 10, gapMs: 10, amplitude: 128);
 
 			for (var i = 0; i < amplitudes.Length; i += 2)

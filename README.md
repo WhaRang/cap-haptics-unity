@@ -35,7 +35,7 @@ Editor and on non-Android platforms every call is a log-only no-op, and nothing 
 ## The debug panel
 
 ```csharp
-HapticsDiagnosticsOverlay.Attach();   // after Initialize()
+HapticDiagnosticsOverlay.Attach();   // after Initialize()
 ```
 
 Three tabs, no scene wiring: **Caps** shows what the device reported (per-effect and

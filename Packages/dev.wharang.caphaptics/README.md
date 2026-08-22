@@ -35,7 +35,7 @@ the Editor and on other platforms every call is a log-only no-op, and nothing ev
 ## The debug panel
 
 ```csharp
-HapticsDiagnosticsOverlay.Attach();   // after Initialize()
+HapticDiagnosticsOverlay.Attach();   // after Initialize()
 ```
 
 Three tabs, no scene wiring: **Caps** shows what the device reported (per-effect and
@@ -68,9 +68,9 @@ pipeline instead — a file, an analytics backend, or a silent sink:
 ```csharp
 using CapHaptics.Client;
 
-sealed class MyLogger : IHapticsLogger
+sealed class MyLogger : IHapticLogger
 {
-    public void Log(HapticsLogLevel level, string message) => MyPipeline.Write(level, message);
+    public void Log(HapticLogLevel level, string message) => MyPipeline.Write(level, message);
 }
 
 Haptics.SetLogger(new MyLogger());   // before Initialize() to capture init logging too

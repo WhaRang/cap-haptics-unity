@@ -12,17 +12,17 @@ namespace CapHaptics.Tests
 	/// sent to the console, null restores the default, and a throwing logger cannot
 	/// break the no-throw guarantee.
 	/// </summary>
-	public sealed class HapticsLoggerTests
+	public sealed class HapticLoggerTests
 	{
-		private sealed class CaptureLogger : IHapticsLogger
+		private sealed class CaptureLogger : IHapticLogger
 		{
-			public readonly List<(HapticsLogLevel level, string message)> Lines = new();
-			public void Log(HapticsLogLevel level, string message) => Lines.Add((level, message));
+			public readonly List<(HapticLogLevel level, string message)> Lines = new();
+			public void Log(HapticLogLevel level, string message) => Lines.Add((level, message));
 		}
 
-		private sealed class ThrowingLogger : IHapticsLogger
+		private sealed class ThrowingLogger : IHapticLogger
 		{
-			public void Log(HapticsLogLevel level, string message) => throw new InvalidOperationException("broken logger");
+			public void Log(HapticLogLevel level, string message) => throw new InvalidOperationException("broken logger");
 		}
 
 		[TearDown]
@@ -38,7 +38,7 @@ namespace CapHaptics.Tests
 			Assert.That(HapticCapabilities.FromJson("this is not json {"), Is.Null);
 
 			Assert.That(capture.Lines, Has.Count.EqualTo(1));
-			Assert.That(capture.Lines[0].level, Is.EqualTo(HapticsLogLevel.Error));
+			Assert.That(capture.Lines[0].level, Is.EqualTo(HapticLogLevel.Error));
 			Assert.That(capture.Lines[0].message, Does.StartWith("[cap-haptics]"));
 			// Nothing reached the Unity console — that is the point of the adaptor.
 			LogAssert.NoUnexpectedReceived();

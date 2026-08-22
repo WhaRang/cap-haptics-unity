@@ -9,7 +9,7 @@ namespace CapHaptics.Tests
 	/// testable without touching the static facade's lifecycle — and switching back on
 	/// restores the previous behavior with nothing to re-arm.
 	/// </summary>
-	public sealed class HapticsEnabledTests
+	public sealed class HapticEnabledTests
 	{
 		[TearDown]
 		public void RestoreEnabled() => Haptics.Enabled = true;

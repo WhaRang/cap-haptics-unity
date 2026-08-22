@@ -76,7 +76,7 @@ namespace CapHaptics.Client
 		/// <see cref="Initialize"/> to capture init logging too. Native-side logging
 		/// (logcat / os_log, tag <c>CapHaptics</c>) is a separate channel and stays put.
 		/// </summary>
-		public static void SetLogger(IHapticsLogger? logger) => HapticsLog.Set(logger);
+		public static void SetLogger(IHapticLogger? logger) => HapticLog.Set(logger);
 
 		/// <summary>
 		/// Idempotent; call once at startup. Returns false — after logging exactly why —
@@ -101,7 +101,7 @@ namespace CapHaptics.Client
 				BridgeVersion = _backend.GetBridgeVersion();
 				if (BridgeVersion != ExpectedBridgeVersion)
 				{
-					HapticsLog.Error(
+					HapticLog.Error(
 						$"[cap-haptics] Bridge version mismatch: C# expects {ExpectedBridgeVersion}, " +
 						$"packaged AAR reports {BridgeVersion}. Rebuild and reinstall the AARs " +
 						"(gradlew installUnityPlugin) or update the C# package.");
@@ -111,7 +111,7 @@ namespace CapHaptics.Client
 
 				if (!_backend.Initialize(verboseLogging))
 				{
-					HapticsLog.Error("[cap-haptics] Native initialization failed.");
+					HapticLog.Error("[cap-haptics] Native initialization failed.");
 					DisposeBackend();
 					return false;
 				}
@@ -119,7 +119,7 @@ namespace CapHaptics.Client
 				var manifestProblems = EnumManifestValidator.Validate(_backend.GetEnumManifestJson());
 				if (manifestProblems != null)
 				{
-					HapticsLog.Error(
+					HapticLog.Error(
 						"[cap-haptics] Enum manifest mismatch — the C# enums and the packaged " +
 						$"AAR disagree; refusing to initialize:\n{manifestProblems}");
 					DisposeBackend();
@@ -128,18 +128,18 @@ namespace CapHaptics.Client
 
 				Capabilities = HapticCapabilities.FromJson(_backend.GetCapabilitiesJson());
 				if (Capabilities == null)
-					HapticsLog.Warning("[cap-haptics] Capabilities unavailable — diagnostics will be empty.");
+					HapticLog.Warning("[cap-haptics] Capabilities unavailable — diagnostics will be empty.");
 				ActiveTier = Capabilities?.ActiveTier ?? HapticTier.None;
 
 				IsInitialized = true;
-				HapticsLog.Info($"[cap-haptics] Initialized, bridge version {BridgeVersion}, " +
+				HapticLog.Info($"[cap-haptics] Initialized, bridge version {BridgeVersion}, " +
 					$"device tier {Capabilities?.DeviceTier.ToString() ?? "?"}, " +
 					$"active tier {Capabilities?.ActiveTier.ToString() ?? "?"}.");
 				return true;
 			}
 			catch (Exception e)
 			{
-				HapticsLog.Error($"[cap-haptics] Initialize failed: {e.Message}");
+				HapticLog.Error($"[cap-haptics] Initialize failed: {e.Message}");
 				DisposeBackend();
 				return false;
 			}

@@ -22,7 +22,7 @@ namespace _Main.Scripts
 			Debug.Log($"[cap-haptics] Bootstrap: initialized={ok}, bridgeVersion={Haptics.BridgeVersion}");
 
 			// U2: the capability panel, mirroring the native harness's diagnostics screen.
-			HapticsDiagnosticsOverlay.Attach();
+			HapticDiagnosticsOverlay.Attach();
 		}
 	}
 }
